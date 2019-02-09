@@ -1,6 +1,7 @@
 using CloudStorage.Server.Authentication;
 using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
+using CloudStorage.Server.Exceptions;
 using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Helpers;
 using CloudStorage.Server.Logging;
@@ -165,6 +166,13 @@ namespace CloudStorage.Server
                 {
                     if (ex is ObjectDisposedException)
                         return;
+
+            
+                    if(ex is UserOutOfSpaceException)
+                    {
+                        await SendResponse(ReplyCode.FileSpaceInsufficient, $"Your storage is full. Try deleting files to free it.: {ex.Message}");
+                        return;
+                    }
 
                     Logger.Log(ex.Message, RecordKind.Error);
 
