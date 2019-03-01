@@ -17,7 +17,6 @@ namespace CloudStorage.Server.Commands {
 
         public async override Task<FtpReply> Execute(string parameter)
         {
-            controlConnection.OnQuit();
             return new FtpReply()
             {
                 ReplyCode = FtpReplyCode.NotImplemented,
