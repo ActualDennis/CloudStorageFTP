@@ -25,7 +25,7 @@ namespace CloudStorage.Server.FileSystem
 
         /// <summary>
         /// Enumerates directory specified in path variable.
-        /// If it's null, user's base directory assumed.
+        /// If it's null, user's base directory is assumed.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>

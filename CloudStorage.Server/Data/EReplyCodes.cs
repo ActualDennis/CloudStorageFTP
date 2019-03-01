@@ -1,6 +1,6 @@
 ﻿namespace CloudStorage.Server.Data
 {
-    public enum ReplyCode
+    public enum FtpReplyCode
     {
         Okay = 200,
         SystemStatus = 211,
