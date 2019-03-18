@@ -51,6 +51,8 @@ namespace CloudStorage.Server
                             while ((response[0] != 'Y') && (response[0] != 'N'));
 
                             await server.Stop(response.ToUpper()[0] == 'Y' ? true : false);
+                            Console.ReadLine();
+                            Environment.Exit(0);
                             break;
                         }
                     case "TEST":

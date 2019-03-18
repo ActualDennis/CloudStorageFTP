@@ -212,6 +212,7 @@
     <Compile Include="Exceptions\UserOutOfSpaceException.cs" />
     <Compile Include="Factories\AuthenticationProviderFactory.cs" />
     <Compile Include="Factories\CloudStorageFileSysProviderFactory.cs" />
+    <Compile Include="Factories\FtpCommandFactory.cs" />
     <Compile Include="Factories\FtpFileSystemProviderFactory.cs" />
     <Compile Include="Factories\IAuthenticationProviderFactory.cs" />
     <Compile Include="Factories\IFileSystemProviderFactory.cs" />

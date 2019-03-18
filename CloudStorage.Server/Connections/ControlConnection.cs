@@ -3,6 +3,7 @@ using CloudStorage.Server.Commands;
 using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
 using CloudStorage.Server.Exceptions;
+using CloudStorage.Server.Factories;
 using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Helpers;
 using CloudStorage.Server.Logging;
@@ -39,43 +40,7 @@ namespace CloudStorage.Server
             FileSystemProvider = fileSystemProvider;
             ClientInitialRemoteEndPoint = (IPEndPoint)connectedClient.Client.RemoteEndPoint;
             Logger = logger;
-
-            Commands = new Dictionary<string, FtpCommand>()
-            {
-                {FtpCommands.ActiveConnection,new ActiveCommand(this) },
-                {FtpCommands.EnableEncryption, new AuthCommand(this, Logger) },
-                {FtpCommands.GoUp, new CdupCommand(this, Logger) },
-                {FtpCommands.ClientInfo, new ClntCommand(this, Logger) },
-                {FtpCommands.ChangeWorkingDirectory, new CwdCommand(this, Logger) },
-                {FtpCommands.DeleteFile, new DeleCommand(this, Logger) },
-                {FtpCommands.ExtendedPassiveConnection, new EpasvCommand(this, Logger) },
-                {FtpCommands.FeatureList,new FeatCommand(this) },
-                {FtpCommands.DirectoryListing,new ListCommand(this, Logger) },
-                {FtpCommands.FileLastModifiedTime,new MdtmCommand(this, Logger) },
-                {FtpCommands.CreateDirectory,new MkdCommand(this, Logger) },
-                {FtpCommands.FileorDirectoryInfo,new MlstCommand(this, Logger) },
-                {FtpCommands.ExtendedDirectoryListing,new MlsdCommand(this, Logger) },
-                {FtpCommands.NameListing,new NlstCommand(this, Logger) },
-                {FtpCommands.KeepAlive,new NoopCommand(this) },
-                {FtpCommands.Options,new OptsCommand(this) },
-                {FtpCommands.UserPassword,new PassCommand(this) },
-                {FtpCommands.PassiveConnection,new PasvCommand(this) },
-                {FtpCommands.DataChannelBufferSize,new PbszCommand(this)  },
-                {FtpCommands.DataChannelProtection,new ProtCommand(this)  },
-                {FtpCommands.PrintDirectory,new PwdCommand(this) },
-                {FtpCommands.Quit,new QuitCommand(this) },
-                {FtpCommands.DownloadFile,new RetrCommand(this, Logger)  },
-                {FtpCommands.RemoveDirectory,new RmdCommand(this, Logger) },
-                {FtpCommands.RenameFrom,new RnfrCommand(this, Logger)  },
-                {FtpCommands.RenameTo,new RntoCommand(this) },
-                {FtpCommands.SiteSpecific,new SiteCommand(this, Logger)},
-                {FtpCommands.Size ,new SizeCommand(this, Logger)},
-                {FtpCommands.UploadFile,new StorCommand(this, Logger) },
-                {FtpCommands.SystemType,new SystCommand(this) },
-                {FtpCommands.ChangeTransferType,new TypeCommand(this) },
-                {FtpCommands.UserLogin, new UserCommand(this, Logger) },
-                {"Unrecognized",new UnrecognizedCommand(this) }
-            };
+            ftpCommandFactory = new FtpCommandFactory();
         }
 
         #endregion
@@ -85,6 +50,7 @@ namespace CloudStorage.Server
         public ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
         private ILogger Logger { get; set; }
         private TcpClient ConnectedClient { get; }
+        private FtpCommandFactory ftpCommandFactory { get; }
 
         #endregion
 
@@ -108,8 +74,6 @@ namespace CloudStorage.Server
         public Encoding ServerEncoding { get; set; } = Encoding.UTF8;
 
         public bool IsAuthenticated { get; set; }
-
-        private Dictionary<string, FtpCommand> Commands { get; set; }
 
         #endregion
 
@@ -224,20 +188,16 @@ namespace CloudStorage.Server
 
             //main logic of command execution
 
-            if (!Commands.ContainsKey(command))
-            {
-                await Commands["Unrecognized"].Execute(parameter);
-                return;
-            }
+            var ftpCommand = ftpCommandFactory.GetCommand(command, this, Logger);
 
-            var result = await Commands[command].Execute(parameter);
+            var result = await ftpCommand.Execute(parameter);
 
             if (result == null)
                 return;
 
             SendResponse(result, false);
 
-            if (Commands[command] is QuitCommand)
+            if (ftpCommand is QuitCommand)
             {
                 Dispose();
             }
