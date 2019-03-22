@@ -30,7 +30,8 @@ namespace CloudStorage.Server
         public ControlConnection(TcpClient connectedClient,
             IAuthenticationProvider authenticationProvider,
             ICloudStorageFileSystemProvider fileSystemProvider,
-            ILogger logger)
+            ILogger logger,
+            bool IsEncryptionEnabled)
         {
             ConnectedClient = connectedClient;
             ClientCommandStream = connectedClient.GetStream();
@@ -41,6 +42,7 @@ namespace CloudStorage.Server
             ClientInitialRemoteEndPoint = (IPEndPoint)connectedClient.Client.RemoteEndPoint;
             Logger = logger;
             ftpCommandFactory = new FtpCommandFactory();
+            IsEncryptionSupported = IsEncryptionEnabled;
         }
 
         #endregion
@@ -51,6 +53,8 @@ namespace CloudStorage.Server
         private ILogger Logger { get; set; }
         private TcpClient ConnectedClient { get; }
         private FtpCommandFactory ftpCommandFactory { get; }
+
+        public bool IsEncryptionSupported { get; }
 
         #endregion
 
@@ -232,6 +236,12 @@ namespace CloudStorage.Server
         /// <returns></returns>
         public async Task OnEncryptionEnabled()
         {
+            if (!IsEncryptionSupported)
+            {
+                SendResponse(new FtpReply() { ReplyCode = FtpReplyCode.NotImplemented, Message = "Server is not configured to support SSL/TLS." }, false);
+                return;
+            }
+
             SendResponse(new FtpReply() { ReplyCode = FtpReplyCode.ServiceReady, Message = "Service is ready." }, false);
 
             ConnectionFlags |= ControlConnectionFlags.UsingTLSorSSL;
@@ -371,6 +381,12 @@ namespace CloudStorage.Server
 
         public async Task OnDataChannelEncryptionEnabled()
         {
+            if (!IsEncryptionSupported)
+            {
+                SendResponse(new FtpReply() { ReplyCode = FtpReplyCode.NotImplemented, Message = "Server is not configured to support SSL/TLS." }, false);
+                return;
+            }
+
             ClientDataConnection.ActivateEncryption();
 
             ActionsTracker.ConnectionSecurityChanged(null, new ConnectionSecurityChangedEventArgs()

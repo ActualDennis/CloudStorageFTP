@@ -31,6 +31,7 @@ namespace CloudStorage.Server
             logger = new LoggerFactory().NewLogger(loggerType);
             fileSysFactory = new CloudStorageFileSysProviderFactory();
             fileSysProviderType = fileSystemProviderType;
+            IsEncryptionSupported = IsEncryptionAvailable;
         }
 
         private TcpListener ConnectionsListener { get; }
@@ -46,6 +47,8 @@ namespace CloudStorage.Server
         private IAuthenticationProvider authenticationProvider { get; set; }
 
         private FtpFileSystemProvider fileSysProviderType { get; set; }
+
+        private bool IsEncryptionSupported { get; }
 
         private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
 
@@ -69,7 +72,7 @@ namespace CloudStorage.Server
                     fileSystemProvider = fileSysFactory.NewFileSysProvider(fileSysProviderType, ServerDirectory);
                     var connectedClient = ConnectionsListener.AcceptTcpClient();
                     ActionsTracker.UserConnected(null, connectedClient.Client.RemoteEndPoint);
-                    var controlConnection = new ControlConnection(connectedClient, authenticationProvider, fileSystemProvider, logger);
+                    var controlConnection = new ControlConnection(connectedClient, authenticationProvider, fileSystemProvider, logger, IsEncryptionSupported);
                     var cts = new CancellationTokenSource();
                     connections.Add(Task.Run(() => controlConnection.InitiateConnection(cts.Token)), cts);
                 }
