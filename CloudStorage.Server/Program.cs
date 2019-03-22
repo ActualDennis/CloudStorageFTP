@@ -68,18 +68,20 @@ namespace CloudStorage.Server
         {
             try
             {
+                var settings = XmlConfigParser.ParseSettings();
+
                 //For server to operate as you want , 
-                //you must set desired values in DefaultValues.resx
+                //you must set desired values in Configuration.xml
                 //If you are using ssl certificate, it should be without password for now.
-                DefaultServerValues.CertificateLocation = DefaultValues.SSLCertificatePath;
-                DefaultServerValues.BaseDirectory = DefaultValues.BaseServerDirectory;
-                DefaultServerValues.FtpControlPort = int.Parse(DefaultValues.CommandsFtpPort);
-                DefaultServerValues.ServerExternalIP = DefaultValues.ServerExternalIP;
-                DefaultServerValues.LoggingPath = DefaultValues.LoggingPath;
-                DataConnection.MaxPort = int.Parse(DefaultValues.PortRangeMaximum);
-                DataConnection.MinPort = int.Parse(DefaultValues.PortRangeMinimum);
+                DefaultServerValues.CertificateLocation = settings.CertificateLocation;
+                DefaultServerValues.BaseDirectory = settings.BaseDirectory;
+                DefaultServerValues.FtpControlPort = settings.FtpControlPort;
+                DefaultServerValues.ServerExternalIP = settings.ServerExternalIP;
+                DefaultServerValues.LoggingPath = settings.LoggingPath;
+                DataConnection.MaxPort = settings.MaxPort;
+                DataConnection.MinPort = settings.MinPort;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Server did not start properly. Fix these errors and try again: {ex.Message}");
                 Console.ReadLine();
@@ -89,85 +91,12 @@ namespace CloudStorage.Server
 
         private static void ScanForOpenPorts()
         {
-            if(ActionsTracker.UsersInfo.Count() != 0)
-            {
-                Console.WriteLine($"There are active users on this server. Try again when there are no any.");
-                return;
-            }
-
-            for(int i = DataConnection.MinPort; i < DataConnection.MaxPort; ++i)
-            {
-                var listener = new TcpListener(IPAddress.Any, i);
-                listener.Start();
-            }
-            for(int i = DataConnection.MinPort; i < DataConnection.MaxPort; ++i)
-            {
-                try
-                {
-                    var client = new TcpClient();
-                    client.Connect(DefaultServerValues.ServerExternalIP, i);
-                    Console.WriteLine($"Port {i} is opened.");
-                    client.Close();
-                }
-                catch
-                {
-                    Console.WriteLine($"Port {i} is closed.");
-                }
-            }
-
+            PortsScanner.ScanForOpenPorts();
         }
 
         private static void PrintUsersInfo()
         {
-            var enumerable = ActionsTracker.UsersInfo.AsEnumerable();
-            if((enumerable == null) || (enumerable.Count() == 0))
-            {
-                Console.WriteLine("No users are currently on the server.");
-                return;
-            }
-
-            foreach(var user in enumerable)
-            {
-                Console.WriteLine($"User's endpoint: {((IPEndPoint)user.Key).ToString()}");
-                Console.WriteLine(user.Value.IsAuthenticated
-                    ? $"Authenticated as : {user.Value.UserName}"
-                    : $"Currently not authenticated.");
-                string value = user.Value.Security switch
-                { 
-                    ConnectionSecurity.ControlConnectionSecured => "Securing only command channel.",
-                    ConnectionSecurity.DataChannelSecured => "Securing only data channel.",
-                    ConnectionSecurity.Both => "Securing both data and command channels.",
-                    ConnectionSecurity.NonSecure => "Non-secured.",
-                    _ => "Non-secured."
-                };
-
-                Console.WriteLine($"User's security: {value}");
-
-                if (user.Value.IsAuthenticated)
-                {
-
-                    var storageInfo = DatabaseHelper.GetStorageInformation(user.Value.UserName);
-                   
-                    Console.WriteLine($"Total storage of user {user.Value.UserName} is {BytesToStringFormatted(storageInfo.BytesTotal)}");
-                    Console.WriteLine($"Occupied: {BytesToStringFormatted(storageInfo.BytesOccupied)}");
-                    Console.WriteLine($"Free: {BytesToStringFormatted(storageInfo.BytesFree)}");
-
-                }
-
-                Console.WriteLine();
-            }
-        }
-
-        private static string BytesToStringFormatted(long bytes)
-        {
-            return bytes switch
-            {
-                long x when x < 1024 => $"{x} Bytes.",
-                long x when (x >= 1024) && (x < 1024 * 1024) => $"{(float)x / 1024} kB.",
-                long x when (x >= 1024 * 1024) && (x < 1024 * 1024 * 1024) => $"{(float)x / (1024 * 1024)} MB.",
-                long x when (x >= 1024 * 1024 * 1024) => $"{(float)x / (1024 * 1024 * 1024)} GB.",
-                _ => "Out of range."
-            };
+            UserInfoLogger.PrintUsersInfo();
         }
     }
 }
