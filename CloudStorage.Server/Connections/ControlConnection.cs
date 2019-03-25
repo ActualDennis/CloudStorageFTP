@@ -2,16 +2,12 @@ using CloudStorage.Server.Authentication;
 using CloudStorage.Server.Commands;
 using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
-using CloudStorage.Server.Exceptions;
 using CloudStorage.Server.Factories;
 using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Helpers;
 using CloudStorage.Server.Logging;
 using CloudStorage.Server.Misc;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -20,41 +16,34 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CloudStorage.Server
-{
+namespace CloudStorage.Server {
     /// <summary>
     /// Class used to accept commands from ftp client and execute them.
     /// </summary>
     public class ControlConnection : IDisposable {
         #region Constructor
-        public ControlConnection(TcpClient connectedClient,
+        public ControlConnection(
             IAuthenticationProvider authenticationProvider,
-            ICloudStorageFileSystemProvider fileSystemProvider,
             ILogger logger,
-            bool IsEncryptionEnabled)
+            DataConnection dataConnection,
+            FtpCommandFactory commandsFactory)
         {
-            ConnectedClient = connectedClient;
-            ClientCommandStream = connectedClient.GetStream();
-            CommandStreamReader = new StreamReader(ClientCommandStream, ServerEncoding);
-            ClientDataConnection = new DataConnection(logger, fileSystemProvider);
+            ClientDataConnection = dataConnection;
             AuthenticationProvider = authenticationProvider;
-            FileSystemProvider = fileSystemProvider;
-            ClientInitialRemoteEndPoint = (IPEndPoint)connectedClient.Client.RemoteEndPoint;
             Logger = logger;
-            ftpCommandFactory = new FtpCommandFactory();
-            IsEncryptionSupported = IsEncryptionEnabled;
+            ftpCommandFactory = commandsFactory;
         }
 
         #endregion
 
         #region Dependencies
         private IAuthenticationProvider AuthenticationProvider { get; set; }
-        public ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
+        public  ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
         private ILogger Logger { get; set; }
-        private TcpClient ConnectedClient { get; }
+        private TcpClient ConnectedClient { get; set; }
         private FtpCommandFactory ftpCommandFactory { get; }
 
-        private bool IsEncryptionSupported { get; }
+        private bool IsEncryptionSupported { get; set; }
 
         #endregion
 
@@ -63,7 +52,7 @@ namespace CloudStorage.Server
 
         private StreamReader CommandStreamReader { get; set; }
 
-        public DataConnection ClientDataConnection { get; }
+        public DataConnection ClientDataConnection { get; private set; }
         /// <summary>
         /// Client can-reconnect or change port for some reason, 
         /// so to keep track of user, store the initial endpoint
@@ -78,6 +67,20 @@ namespace CloudStorage.Server
         private Encoding ServerEncoding { get; set; } = Encoding.UTF8;
 
         public bool IsAuthenticated { get; set; }
+
+        #endregion
+
+        #region Initialization
+        public void Initialize(TcpClient client, ICloudStorageFileSystemProvider fileSystemProvider, bool IsEncryptionEnabled)
+        {
+            ConnectedClient = client;
+            FileSystemProvider = fileSystemProvider;
+            ClientCommandStream = client.GetStream();
+            CommandStreamReader = new StreamReader(ClientCommandStream, ServerEncoding);
+            ClientInitialRemoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
+            IsEncryptionSupported = IsEncryptionEnabled;
+            ClientDataConnection.Initialize(fileSystemProvider);
+        }
 
         #endregion
 

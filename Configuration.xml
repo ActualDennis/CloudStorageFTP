@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ConfigVariables>
+  <BaseServerDirectory>H:/FtpServ</BaseServerDirectory> <!--Path in which all the users' folders will be contained-->
+  <CommandsFtpPort>1064</CommandsFtpPort><!--Port on which to listen for incoming connections.(usually it's 21)-->
+  <LoggingPath>C:/CloudStorageFTP/Logs/</LoggingPath> <!--Path in which file with logs will be saved.-->
+  <PortRangeMaximum>35546</PortRangeMaximum>
+  <PortRangeMinimum>35535</PortRangeMinimum><!--Range of ports will be used for transmission of data.-->
+  <ServerExternalIP>195.123.210.61</ServerExternalIP><!--External ip of a server. Get yours on https://www.myip.com/-->
+  <SSLCertificatePath>C:/sslCert.pfx</SSLCertificatePath><!--If you have ssl certificate, specify the path here.-->
+</ConfigVariables>

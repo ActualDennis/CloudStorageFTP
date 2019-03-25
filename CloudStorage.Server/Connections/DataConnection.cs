@@ -16,10 +16,14 @@ namespace CloudStorage.Server.Connections
     /// </summary>
     public class DataConnection
     {
-        public DataConnection(ILogger logger,
-            ICloudStorageFileSystemProvider fileSystemProvider)
+        public DataConnection(
+            ILogger logger)
         {
             this.logger = logger;
+        }
+
+        public void Initialize(ICloudStorageFileSystemProvider fileSystemProvider)
+        {
             FileSystemProvider = fileSystemProvider;
         }
 

@@ -20,8 +20,8 @@ namespace CloudStorage.Server.Helpers {
                 CertificateLocation = settingsFile["ConfigVariables"]["SSLCertificatePath"].FirstChild.Value,
                 FtpControlPort = int.Parse(settingsFile["ConfigVariables"]["CommandsFtpPort"].FirstChild.Value),
                 LoggingPath = settingsFile["ConfigVariables"]["LoggingPath"].FirstChild.Value,
-                MinPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMaximum"].FirstChild.Value),
-                MaxPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMinimum"].FirstChild.Value),
+                MaxPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMaximum"].FirstChild.Value),
+                MinPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMinimum"].FirstChild.Value),
                 ServerExternalIP = settingsFile["ConfigVariables"]["ServerExternalIP"].FirstChild.Value
             };
         }

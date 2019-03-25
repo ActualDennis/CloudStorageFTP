@@ -9,12 +9,13 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>CloudStorage.Server</RootNamespace>
     <AssemblyName>CloudStorage.Server</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -209,6 +210,7 @@
     <Compile Include="Data\ELogger.cs" />
     <Compile Include="Data\ELogKind.cs" />
     <Compile Include="Data\StorageInfo.cs" />
+    <Compile Include="Di\DiContainer.cs" />
     <Compile Include="Exceptions\UserOutOfSpaceException.cs" />
     <Compile Include="Factories\AuthenticationProviderFactory.cs" />
     <Compile Include="Factories\CloudStorageFileSysProviderFactory.cs" />
@@ -284,6 +286,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Configuration.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Documents\GitHub\DotNetPlatform\DiContainer\DenInject.Core\DenInject.Core.csproj">
+      <Project>{9b5e6fad-e4bb-461a-a835-34b6c0ba1b96}</Project>
+      <Name>DenInject.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

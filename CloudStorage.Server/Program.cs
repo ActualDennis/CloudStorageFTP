@@ -1,31 +1,27 @@
-﻿using CloudStorage.Server.Authentication;
-using CloudStorage.Server.Connections;
+﻿using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
+using CloudStorage.Server.Di;
 using CloudStorage.Server.Helpers;
-using CloudStorage.Server.Misc;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace CloudStorage.Server
-{
+namespace CloudStorage.Server {
     internal class Program
     {
         private static async Task Main(string[] args)
         {
             Initialize();
-            var server = new FtpServer(
-                ftpPort: DefaultServerValues.FtpControlPort,
-                IsEncryptionAvailable: File.Exists(DefaultServerValues.CertificateLocation));
 
-            _ = Task.Run(() => server.Start());
+            var server = DiContainer.Provider.Resolve<FtpServer>(); 
+
+            _ = Task.Run(() => server.Start(
+                FtpFileSystemProvider.FtpUNIX, 
+                DefaultServerValues.FtpControlPort, 
+                File.Exists(DefaultServerValues.CertificateLocation)));
+
             Console.WriteLine("Welcome to CloudStorage FTP server v1.0");
-            Console.WriteLine($"Server's endPoint is {DefaultServerValues.ServerExternalIP}:{server.ControlPort}");
+            Console.WriteLine($"Server's endPoint is {DefaultServerValues.ServerExternalIP}:{DefaultServerValues.FtpControlPort}");
             Console.WriteLine("Available commands:");
             Console.WriteLine("'test' - test router for open ports. Available only when there are no users connected.");
             Console.WriteLine("'users' - print info about connected users.");
@@ -80,6 +76,8 @@ namespace CloudStorage.Server
                 DefaultServerValues.LoggingPath = settings.LoggingPath;
                 DataConnection.MaxPort = settings.MaxPort;
                 DataConnection.MinPort = settings.MinPort;
+
+                DiContainer.Initialize();
             }
             catch (Exception ex)
             {
