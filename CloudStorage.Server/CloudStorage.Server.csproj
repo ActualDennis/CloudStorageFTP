@@ -209,11 +209,6 @@
     <Compile Include="Data\ELogger.cs" />
     <Compile Include="Data\ELogKind.cs" />
     <Compile Include="Data\StorageInfo.cs" />
-    <Compile Include="DefaultValues.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DefaultValues.resx</DependentUpon>
-    </Compile>
     <Compile Include="Exceptions\UserOutOfSpaceException.cs" />
     <Compile Include="Factories\AuthenticationProviderFactory.cs" />
     <Compile Include="Factories\CloudStorageFileSysProviderFactory.cs" />
@@ -280,10 +275,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DefaultValues.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>DefaultValues.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201902061043515_noName.resx">
       <DependentUpon>201902061043515_noName.cs</DependentUpon>
     </EmbeddedResource>

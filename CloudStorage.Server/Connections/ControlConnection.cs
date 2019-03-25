@@ -54,14 +54,14 @@ namespace CloudStorage.Server
         private TcpClient ConnectedClient { get; }
         private FtpCommandFactory ftpCommandFactory { get; }
 
-        public bool IsEncryptionSupported { get; }
+        private bool IsEncryptionSupported { get; }
 
         #endregion
 
         #region Fields
-        public Stream ClientCommandStream { get; set; }
+        private Stream ClientCommandStream { get; set; }
 
-        public StreamReader CommandStreamReader { get; set; }
+        private StreamReader CommandStreamReader { get; set; }
 
         public DataConnection ClientDataConnection { get; }
         /// <summary>
@@ -71,11 +71,11 @@ namespace CloudStorage.Server
         public IPEndPoint ClientInitialRemoteEndPoint { get; set; }
 
         //Active / passive
-        public ConnectionType UserConnectionType { get; set; }
+        private ConnectionType UserConnectionType { get; set; }
 
-        public ControlConnectionFlags ConnectionFlags { get; set; }
+        private ControlConnectionFlags ConnectionFlags { get; set; }
 
-        public Encoding ServerEncoding { get; set; } = Encoding.UTF8;
+        private Encoding ServerEncoding { get; set; } = Encoding.UTF8;
 
         public bool IsAuthenticated { get; set; }
 
