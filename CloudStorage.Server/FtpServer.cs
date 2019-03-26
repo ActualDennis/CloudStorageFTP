@@ -9,6 +9,7 @@ using CloudStorage.Server.Authentication;
 using CloudStorage.Server.Data;
 using CloudStorage.Server.Di;
 using CloudStorage.Server.Factories;
+using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Logging;
 using CloudStorage.Server.Misc;
 
@@ -17,12 +18,9 @@ namespace CloudStorage.Server {
     public class FtpServer : IDisposable
     {
         public FtpServer(
-            ILogger logger,
-            IAuthenticationProvider authProvider,
-            CloudStorageFileSysProviderFactory fileSysFactory)
+            ILogger logger)
         {
             ServerDirectory = DefaultServerValues.BaseDirectory;
-            this.fileSysFactory = fileSysFactory;
             this.logger = logger;
         }
 
@@ -31,8 +29,6 @@ namespace CloudStorage.Server {
         private string ServerDirectory { get; }
 
         private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
-
-        private CloudStorageFileSysProviderFactory fileSysFactory { get; set; }
 
         private ILogger logger { get; set; }
 
@@ -46,20 +42,19 @@ namespace CloudStorage.Server {
         /// and allow users manage their virtual storage
         /// </summary>
         /// <returns></returns>
-        public async Task Start(FtpFileSystemProvider fileSystemProviderType, int Port, bool IsEncryptionEnabled)
+        public async Task Start(int Port, bool IsEncryptionEnabled)
         {
             ConnectionsListener = new TcpListener(IPAddress.Any, Port);
             ConnectionsListener.Start();
             while (true)
                 try
                 {
-                    var fileSystemProvider = fileSysFactory.NewFileSysProvider(fileSystemProviderType, ServerDirectory);
                     var connectedClient = ConnectionsListener.AcceptTcpClient();
 
                     ActionsTracker.UserConnected(null, connectedClient.Client.RemoteEndPoint);
 
                     var controlConnection = DiContainer.Provider.Resolve<ControlConnection>();
-                    controlConnection.Initialize(connectedClient, fileSystemProvider, IsEncryptionEnabled);
+                    controlConnection.Initialize(connectedClient, IsEncryptionEnabled);
 
                     var cts = new CancellationTokenSource();
                     connections.Add(Task.Run(() => controlConnection.InitiateConnection(cts.Token)), cts);

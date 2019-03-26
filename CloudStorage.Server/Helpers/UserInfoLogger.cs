@@ -1,4 +1,5 @@
 ﻿using CloudStorage.Server.Data;
+using CloudStorage.Server.Di;
 using CloudStorage.Server.Misc;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace CloudStorage.Server.Helpers {
                 if (user.Value.IsAuthenticated)
                 {
 
-                    var storageInfo = DatabaseHelper.GetStorageInformation(user.Value.UserName);
+                    var storageInfo = DiContainer.Provider.Resolve<DatabaseHelper>().GetStorageInformation(user.Value.UserName);
 
                     Console.WriteLine($"Total storage of user {user.Value.UserName} is {BytesToStringFormatted(storageInfo.BytesTotal)}");
                     Console.WriteLine($"Occupied: {BytesToStringFormatted(storageInfo.BytesOccupied)}");

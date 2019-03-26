@@ -6,12 +6,16 @@ using CloudStorage.Server.FileSystem;
 
 namespace CloudStorage.Server.Helpers
 {
-    public static class DatabaseHelper
+    public class DatabaseHelper
     {
-        private static IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider { get; set; }
-            = new FtpUnixFileSystemProvider(DefaultServerValues.BaseDirectory);
+        public DatabaseHelper(ICloudStorageFileSystemProvider FileSystemProvider)
+        {
+            this.FileSystemProvider = FileSystemProvider;
+        }
 
-        public static async Task NewRecord(string username, string password)
+        private ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
+
+        public async Task NewRecord(string username, string password)
         {
             if (username.ToUpperInvariant() == "ANONYMOUS")
                 throw new InvalidOperationException("Could not add anonymous to database.");
@@ -36,7 +40,7 @@ namespace CloudStorage.Server.Helpers
             }
         }
 
-        public static StorageInfo GetStorageInformation(string username)
+        public StorageInfo GetStorageInformation(string username)
         {
             //It's a public account
             if (username.ToUpperInvariant() == "ANONYMOUS")

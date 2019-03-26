@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudStorage.Server.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,12 +13,12 @@ namespace CloudStorage.Server.FileSystem
 
         private string workingDirectory;
 
-        private static char msDosSeparator => Path.DirectorySeparatorChar;
-        private static char unixSeparator => Path.AltDirectorySeparatorChar;
+        protected static char alternateSeparator { get; set; } = Path.DirectorySeparatorChar;
+        protected static char currentSeparator { get; set; } = Path.AltDirectorySeparatorChar;
 
-        public FtpUnixFileSystemProvider(string serverBaseDirectory)
+        public FtpUnixFileSystemProvider()
         {
-            BaseDirectory = serverBaseDirectory;
+            BaseDirectory = DefaultServerValues.BaseDirectory;
         }
 
         /// <summary>
@@ -62,15 +63,15 @@ namespace CloudStorage.Server.FileSystem
         /// </summary>
         public void Initialize(string username)
         {
-            UserBaseDirectory = BaseDirectory + unixSeparator + username;
+            UserBaseDirectory = BaseDirectory + currentSeparator + username;
 
             UserName = username;
 
             if (!Directory.Exists(UserBaseDirectory)) Directory.CreateDirectory(UserBaseDirectory);
 
-            workingDirectory = unixSeparator.ToString();
+            workingDirectory = currentSeparator.ToString();
             //unix will be used as standard to use on this machine
-            UserBaseDirectory.Replace(msDosSeparator, unixSeparator);
+            UserBaseDirectory.Replace(alternateSeparator, currentSeparator);
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace CloudStorage.Server.FileSystem
         /// <returns></returns>
         public string GetUserBaseFtpDirectory(string userName)
         {
-            return unixSeparator.ToString();
+            return currentSeparator.ToString();
         }
         /// <summary>
         /// Enumerates files and directories in path directory. 
@@ -108,7 +109,7 @@ namespace CloudStorage.Server.FileSystem
         /// <returns></returns>
         public override void Delete(string path)
         {
-            if (path == unixSeparator.ToString())
+            if (path == currentSeparator.ToString())
                 throw new InvalidOperationException("Could not remove user base directory.");
 
             path = GetLocalPath(path);
@@ -126,7 +127,7 @@ namespace CloudStorage.Server.FileSystem
 
             to = GetLocalPath(to);
 
-            if (from == UserBaseDirectory.Trim(unixSeparator) || from == BaseDirectory)
+            if (from == UserBaseDirectory.Trim(currentSeparator) || from == BaseDirectory)
                 throw new InvalidOperationException("Could not rename root folder.");
 
             base.Rename(from, to);
@@ -153,13 +154,13 @@ namespace CloudStorage.Server.FileSystem
 
         public void MoveUp()
         {
-            if (workingDirectory == unixSeparator.ToString())
+            if (workingDirectory == currentSeparator.ToString())
                 return;
 
-            workingDirectory = workingDirectory.Substring(0, workingDirectory.LastIndexOf(unixSeparator) + 1);
+            workingDirectory = workingDirectory.Substring(0, workingDirectory.LastIndexOf(currentSeparator) + 1);
             //Delete / at the end if this is not root
-            if (workingDirectory != unixSeparator.ToString())
-                workingDirectory = workingDirectory.TrimEnd(unixSeparator);
+            if (workingDirectory != currentSeparator.ToString())
+                workingDirectory = workingDirectory.TrimEnd(currentSeparator);
         }
 
         public override Stream GetFileStream(string ftpPath)
@@ -181,7 +182,7 @@ namespace CloudStorage.Server.FileSystem
         /// <returns></returns>
         private string FtpToLocalPath(string path)
         {
-            if (path == unixSeparator.ToString())
+            if (path == currentSeparator.ToString())
                 return UserBaseDirectory;
 
             return UserBaseDirectory + path;
@@ -195,12 +196,12 @@ namespace CloudStorage.Server.FileSystem
         /// <returns></returns>
         public string GetWorkingDirectory(string chosenPath)
         {
-            if (chosenPath.Contains(msDosSeparator.ToString()))
-                throw new MsDosPathNotSupportedException("Ms dos - like path is not supported. Consider using unix-like path.");
+            if (chosenPath.Contains(alternateSeparator.ToString()))
+                throw new WrongPathFormatException($"Wrong path format was chosen. Current file system type is {(currentSeparator == '/' ? "unix-like" : "ms-dos like")}.");
 
-            if (chosenPath == unixSeparator.ToString()) return unixSeparator.ToString();
+            if (chosenPath == currentSeparator.ToString()) return currentSeparator.ToString();
 
-            var localPath = GetLocalPath(chosenPath).TrimEnd(unixSeparator);
+            var localPath = GetLocalPath(chosenPath).TrimEnd(currentSeparator);
 
             if (!localPath.IndexOf(UserBaseDirectory).Equals(-1))
             {
@@ -220,19 +221,19 @@ namespace CloudStorage.Server.FileSystem
 
         private string GetLocalPath(string ftpPath)
         {
-            if (ftpPath.Contains(msDosSeparator.ToString()))
-                throw new MsDosPathNotSupportedException("Ms dos - like path is not supported. Consider using unix-like path.");
+            if (ftpPath.Contains(alternateSeparator.ToString()))
+                throw new WrongPathFormatException($"Wrong path format was chosen. Current file system type is {(currentSeparator == '/' ? "unix-like" : "ms-dos like")}.");
 
             //2 possible cases here: either server will send full path to go to
             //i.e /anonymous/SomeRandomFolder
             //or relative path which in upper case while we are in /anonymous directory should be : SomeRandomFolder
 
-            return ftpPath.StartsWith(unixSeparator.ToString()) // First case: absolute path: it must start with '/'
+            return ftpPath.StartsWith(currentSeparator.ToString()) // First case: absolute path: it must start with '/'
                 ? FtpToLocalPath(ftpPath)
                 : FtpToLocalPath(
-                    workingDirectory == unixSeparator.ToString() //Second case: relative path : append '/' to the end of previous ftp path if it's not root
+                    workingDirectory == currentSeparator.ToString() //Second case: relative path : append '/' to the end of previous ftp path if it's not root
                         ? workingDirectory + ftpPath
-                        : workingDirectory + unixSeparator.ToString() + ftpPath);
+                        : workingDirectory + currentSeparator.ToString() + ftpPath);
         }
 
         public override string GetFileLastModifiedTime(string path)

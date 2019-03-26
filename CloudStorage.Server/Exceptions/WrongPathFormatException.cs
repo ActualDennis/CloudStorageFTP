@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace CloudStorage.Server.FileSystem
 {
-    public class MsDosPathNotSupportedException : Exception
+    public class WrongPathFormatException : Exception
     {
-        public MsDosPathNotSupportedException(string message) : base(message)
+        public WrongPathFormatException(string message) : base(message)
         { }
 
-        public MsDosPathNotSupportedException(string message, Exception inner) :
+        public WrongPathFormatException(string message, Exception inner) :
             base(message, inner)
         { }
     }

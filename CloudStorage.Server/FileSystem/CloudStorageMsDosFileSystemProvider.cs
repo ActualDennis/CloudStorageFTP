@@ -1,22 +1,25 @@
 ﻿using CloudStorage.Server.Di;
 using CloudStorage.Server.Exceptions;
 using CloudStorage.Server.Helpers;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CloudStorage.Server.FileSystem
-{
-    public class CloudStorageUnixFileSystemProvider : FtpUnixFileSystemProvider, ICloudStorageFileSystemProvider
-    {
-        public CloudStorageUnixFileSystemProvider()
+namespace CloudStorage.Server.FileSystem {
+    public class CloudStorageMsDosFileSystemProvider : FtpMsDosFileSystemProvider, ICloudStorageFileSystemProvider {
+        public CloudStorageMsDosFileSystemProvider()
         {
-            
+           
         }
 
         public override FileStream CreateNewFile(string path)
         {
             var storageInfo = DiContainer.Provider.Resolve<DatabaseHelper>().GetStorageInformation(UserName);
 
-            if(storageInfo.BytesOccupied >= storageInfo.BytesTotal)
+            if (storageInfo.BytesOccupied >= storageInfo.BytesTotal)
                 throw new UserOutOfSpaceException("Can't copy the files because your cloud storage limit exceeded.");
 
             return base.CreateNewFile(path);
@@ -31,6 +34,5 @@ namespace CloudStorage.Server.FileSystem
 
             return base.CreateNewFileorOverwrite(path);
         }
-
     }
 }

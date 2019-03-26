@@ -2,6 +2,7 @@ using CloudStorage.Server.Authentication;
 using CloudStorage.Server.Commands;
 using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
+using CloudStorage.Server.Di;
 using CloudStorage.Server.Factories;
 using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Helpers;
@@ -25,13 +26,18 @@ namespace CloudStorage.Server {
         public ControlConnection(
             IAuthenticationProvider authenticationProvider,
             ILogger logger,
+            ICloudStorageFileSystemProvider FileSystemProvider,
             DataConnection dataConnection,
-            FtpCommandFactory commandsFactory)
+            FtpCommandFactory commandsFactory,
+            DatabaseHelper DbHelper)
         {
             ClientDataConnection = dataConnection;
             AuthenticationProvider = authenticationProvider;
             Logger = logger;
+            this.FileSystemProvider = FileSystemProvider;
             ftpCommandFactory = commandsFactory;
+            ClientDataConnection.Initialize(this.FileSystemProvider);
+            this.DbHelper = DbHelper;
         }
 
         #endregion
@@ -42,6 +48,7 @@ namespace CloudStorage.Server {
         private ILogger Logger { get; set; }
         private TcpClient ConnectedClient { get; set; }
         private FtpCommandFactory ftpCommandFactory { get; }
+        private DatabaseHelper DbHelper { get; }
 
         private bool IsEncryptionSupported { get; set; }
 
@@ -71,15 +78,13 @@ namespace CloudStorage.Server {
         #endregion
 
         #region Initialization
-        public void Initialize(TcpClient client, ICloudStorageFileSystemProvider fileSystemProvider, bool IsEncryptionEnabled)
+        public void Initialize(TcpClient client, bool IsEncryptionEnabled)
         {
             ConnectedClient = client;
-            FileSystemProvider = fileSystemProvider;
             ClientCommandStream = client.GetStream();
             CommandStreamReader = new StreamReader(ClientCommandStream, ServerEncoding);
             ClientInitialRemoteEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
             IsEncryptionSupported = IsEncryptionEnabled;
-            ClientDataConnection.Initialize(fileSystemProvider);
         }
 
         #endregion
@@ -280,7 +285,7 @@ namespace CloudStorage.Server {
 
         public async Task OnUserRegistered(string[] commandWords)
         {
-            await DatabaseHelper.NewRecord(commandWords[1], commandWords[2]);
+            await DbHelper.NewRecord(commandWords[1], commandWords[2]);
         }
 
         public void OnEnterActiveMode(string endPoint)

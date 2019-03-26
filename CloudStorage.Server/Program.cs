@@ -16,7 +16,6 @@ namespace CloudStorage.Server {
             var server = DiContainer.Provider.Resolve<FtpServer>(); 
 
             _ = Task.Run(() => server.Start(
-                FtpFileSystemProvider.FtpUNIX, 
                 DefaultServerValues.FtpControlPort, 
                 File.Exists(DefaultServerValues.CertificateLocation)));
 
