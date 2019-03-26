@@ -5,6 +5,7 @@ using CloudStorage.Server.FileSystem;
 using CloudStorage.Server.Helpers;
 using CloudStorage.Server.Logging;
 using DenInject.Core;
+using System;
 
 namespace CloudStorage.Server.Di {
     public static class DiContainer {
@@ -23,6 +24,17 @@ namespace CloudStorage.Server.Di {
             config.RegisterTransient<ControlConnection, ControlConnection>();
 
             Provider = new DependencyProvider(config);
+
+            try
+            {
+                Provider.ValidateConfig();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"There was a problem with dependency injection. Program won't start until you fix these errors: {ex.Message}.");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
         }
     }
 }
