@@ -120,30 +120,12 @@ namespace CloudStorage.Server {
         }
         #endregion
 
-        #region Cancellation check
-
-        private async Task CheckIfCancelled(CancellationToken token)
-        {
-            while (true)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    Dispose();
-                    return;
-                }
-
-                await Task.Delay(250);
-            }
-        }
-
-        #endregion
-
         #region Main connection methods
 
-        public async Task InitiateConnection(CancellationToken token)
+        public async Task InitiateConnection(/*CancellationToken token*/)
         {
             SendResponse(new FtpReply() { ReplyCode = FtpReplyCode.ServiceReady, Message = "Service is ready." }, false);
-            _ = Task.Run(() => CheckIfCancelled(token));
+
             while (true)
             {
                 if (disposedValue)

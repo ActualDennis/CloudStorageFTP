@@ -55,7 +55,8 @@ namespace CloudStorage.Server {
                     controlConnection.Initialize(connectedClient, IsEncryptionEnabled);
                     
                     var cts = new CancellationTokenSource();
-                    connections.Add(Task.Run(() => controlConnection.InitiateConnection(cts.Token)), cts);
+                    cts.Token.Register(() => controlConnection.Dispose());
+                    connections.Add(Task.Run(() => controlConnection.InitiateConnection()), cts);
                 }
                 catch (DirectoryNotFoundException)
                 {
@@ -87,6 +88,7 @@ namespace CloudStorage.Server {
                             continue;
 
                         connections[task.Key].Cancel();
+                        connections[task.Key].Dispose();
                     }
 
                     return;
