@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -20,13 +21,10 @@ namespace CloudStorage.Server {
         public FtpServer(
             ILogger logger)
         {
-            ServerDirectory = DefaultServerValues.BaseDirectory;
             this.logger = logger;
         }
 
         private TcpListener ConnectionsListener { get; set; }
-
-        private string ServerDirectory { get; }
 
         private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
 
@@ -38,7 +36,7 @@ namespace CloudStorage.Server {
             connections = null;
         }
         /// <summary>
-        /// Call this method if you want to start listening for incoming requests 
+        /// Call this method if you want to start listening for incoming requests
         /// and allow users manage their virtual storage
         /// </summary>
         /// <returns></returns>
@@ -55,7 +53,7 @@ namespace CloudStorage.Server {
 
                     var controlConnection = DiContainer.Provider.Resolve<ControlConnection>();
                     controlConnection.Initialize(connectedClient, IsEncryptionEnabled);
-
+                    
                     var cts = new CancellationTokenSource();
                     connections.Add(Task.Run(() => controlConnection.InitiateConnection(cts.Token)), cts);
                 }
@@ -65,6 +63,7 @@ namespace CloudStorage.Server {
                     Dispose();
                     break;
                 }
+                catch (InvalidOperationException) { return; }
                 catch (SocketException)
                 {
                     logger.Log("Stopped the server.", RecordKind.Status);
@@ -78,26 +77,16 @@ namespace CloudStorage.Server {
         /// <returns></returns>
         public async Task Stop(bool waitForUsersToDisconnect)
         {
-            var tasksToRemove = new List<Task>();
-
             try
             {
                 if (!waitForUsersToDisconnect)
                 {
-                    foreach (var task in connections.Keys)
+                    foreach (var task in connections)
                     {
-                        if (task.IsCanceled || task.IsCompleted)
-                        {
-                            tasksToRemove.Add(task);
+                        if (task.Key.IsCanceled || task.Key.IsCompleted)
                             continue;
-                        }
 
-                        connections[task].Cancel();
-                    }
-
-                    foreach(var task in tasksToRemove)
-                    {
-                        connections.Remove(task);
+                        connections[task.Key].Cancel();
                     }
 
                     return;
@@ -105,32 +94,14 @@ namespace CloudStorage.Server {
 
                 Console.WriteLine("Waiting for all users to disconnect.");
 
-                while (connections.Count != 0)
-                {
-                    tasksToRemove = new List<Task>();
-                    foreach (var task in connections.Keys)
-                    {
-                        if (task.IsCanceled || task.IsCompleted)
-                        {
-                            tasksToRemove.Add(task);
-                            continue;
-                        }
-                    }
-
-                    foreach (var task in tasksToRemove)
-                    {
-                        connections.Remove(task);
-                    }
-
-                    await Task.Delay(100);
-                }
+                Task.WaitAll(connections.Keys.ToArray());
             }
             finally
             {
                 Dispose();
                 Console.WriteLine("Stopped the server.");
             }
-           
+
         }
     }
 }
