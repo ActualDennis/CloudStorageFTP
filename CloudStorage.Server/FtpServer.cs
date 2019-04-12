@@ -121,14 +121,14 @@ namespace CloudStorage.Server {
                     return;
                 }
 
-                Console.WriteLine("Waiting for all users to disconnect.");
+                logger.Log("Waiting for all users to disconnect.", RecordKind.Status);
 
                 Task.WaitAll(connections.Keys.ToArray());
             }
             finally
             {
                 Dispose();
-                Console.WriteLine("Stopped the server.");
+                logger.Log("Stopped the server.", RecordKind.Status);
             }
 
         }
