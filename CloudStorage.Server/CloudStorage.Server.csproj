@@ -345,6 +345,7 @@
     <Compile Include="Data\EConnectionSecurity.cs" />
     <Compile Include="Data\ELogKind.cs" />
     <Compile Include="Data\StorageInfo.cs" />
+    <Compile Include="Di\DiConfigBuilder.cs" />
     <Compile Include="Di\DiContainer.cs" />
     <Compile Include="Exceptions\UserOutOfSpaceException.cs" />
     <Compile Include="Factories\FtpCommandFactory.cs" />

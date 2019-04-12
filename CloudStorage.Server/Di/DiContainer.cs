@@ -9,22 +9,13 @@ using System;
 
 namespace CloudStorage.Server.Di {
     public static class DiContainer {
+
+        /// <summary>
+        /// You MUST instantiate this property using <see cref="DiConfigBuilder"/>.
+        /// </summary>
         public static DependencyProvider Provider { get; set; }
-
-        public static void Initialize()
+        public static void ValidateConfig()
         {
-            var config = new DiConfiguration();
-            config.RegisterSingleton<FtpServer, FtpServer>();
-            config.RegisterSingleton<ILogger, AutomaticFileLogger>();
-            config.RegisterSingleton<IAuthenticationProvider, FtpDbAuthenticationProvider>();
-            config.RegisterTransient<DataConnection, DataConnection>();
-            config.RegisterTransient<FtpCommandFactory, FtpCommandFactory>();
-            config.RegisterSingleton<DatabaseHelper, DatabaseHelper>();
-            config.RegisterTransient<ICloudStorageFileSystemProvider, CloudStorageUnixFileSystemProvider>();
-            config.RegisterTransient<ControlConnection, ControlConnection>();
-
-            Provider = new DependencyProvider(config);
-
             try
             {
                 Provider.ValidateConfig();

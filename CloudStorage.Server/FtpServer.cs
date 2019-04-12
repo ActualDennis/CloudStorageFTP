@@ -48,8 +48,6 @@ namespace CloudStorage.Server {
                 DefaultServerValues.LoggingPath = settings.LoggingPath;
                 DataConnection.MaxPort = settings.MaxPort;
                 DataConnection.MinPort = settings.MinPort;
-
-                DiContainer.Initialize();
             }
             catch (Exception ex)
             {
@@ -69,6 +67,7 @@ namespace CloudStorage.Server {
         /// <returns></returns>
         public async Task Start(int Port, bool IsEncryptionEnabled)
         {
+            DiContainer.ValidateConfig();
             ConnectionsListener = new TcpListener(IPAddress.Any, Port);
             ConnectionsListener.Start();
             while (true)

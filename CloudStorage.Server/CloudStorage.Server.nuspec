@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>CloudStorage.Server</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Small ftp server.</title>
     <authors>actualdennis</authors>
     <owners>actualdennis</owners>
     <description>Library containing ftp server.</description>
-	<releaseNotes>Updated dependencies.</releaseNotes>
+	<releaseNotes>Removed console logging.</releaseNotes>
     <copyright>Copyright 2019</copyright>
   </metadata>
 </package>
