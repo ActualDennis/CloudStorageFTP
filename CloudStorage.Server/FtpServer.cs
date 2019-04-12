@@ -7,10 +7,12 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using CloudStorage.Server.Authentication;
+using CloudStorage.Server.Connections;
 using CloudStorage.Server.Data;
 using CloudStorage.Server.Di;
 using CloudStorage.Server.Factories;
 using CloudStorage.Server.FileSystem;
+using CloudStorage.Server.Helpers;
 using CloudStorage.Server.Logging;
 using CloudStorage.Server.Misc;
 
@@ -29,6 +31,31 @@ namespace CloudStorage.Server {
         private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
 
         private ILogger logger { get; set; }
+
+        public void Initialize()
+        {
+            try
+            {
+                var settings = XmlConfigParser.ParseSettings();
+
+                //For server to operate as you want , 
+                //you must set desired values in Configuration.xml
+                //If you are using ssl certificate, it should be without password for now.
+                DefaultServerValues.CertificateLocation = settings.CertificateLocation;
+                DefaultServerValues.BaseDirectory = settings.BaseDirectory;
+                DefaultServerValues.FtpControlPort = settings.FtpControlPort;
+                DefaultServerValues.ServerExternalIP = settings.ServerExternalIP;
+                DefaultServerValues.LoggingPath = settings.LoggingPath;
+                DataConnection.MaxPort = settings.MaxPort;
+                DataConnection.MinPort = settings.MinPort;
+
+                DiContainer.Initialize();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Server did not start properly. Fix these errors and try again: {ex.Message}");
+            }
+        }
 
         public void Dispose()
         {

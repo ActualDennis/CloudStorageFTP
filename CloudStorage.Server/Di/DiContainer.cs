@@ -31,9 +31,7 @@ namespace CloudStorage.Server.Di {
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"There was a problem with dependency injection. Program won't start until you fix these errors: {ex.Message}.");
-                Console.ReadLine();
-                Environment.Exit(0);
+                throw new ApplicationException($"Dependency injection error: {ex.Message}.");
             }
         }
     }
