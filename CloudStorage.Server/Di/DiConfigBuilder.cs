@@ -47,7 +47,7 @@ namespace CloudStorage.Server.Di
         /// </summary>
         public void UseNeccessaryClasses()
         {
-            config.RegisterSingleton<FtpServer, FtpServer>();
+            config.RegisterTransient<FtpServer, FtpServer>();
             config.RegisterTransient<DataConnection, DataConnection>();
             config.RegisterTransient<FtpCommandFactory, FtpCommandFactory>();
             config.RegisterSingleton<DatabaseHelper, DatabaseHelper>();

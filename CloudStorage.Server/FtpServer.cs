@@ -32,7 +32,7 @@ namespace CloudStorage.Server {
 
         private ILogger logger { get; set; }
 
-        public void Initialize()
+        private void Initialize()
         {
             try
             {
@@ -49,9 +49,9 @@ namespace CloudStorage.Server {
                 DataConnection.MaxPort = settings.MaxPort;
                 DataConnection.MinPort = settings.MinPort;
             }
-            catch (Exception ex)
+            catch 
             {
-                throw new ApplicationException($"Server did not start properly. Fix these errors and try again: {ex.Message}");
+                throw new ApplicationException($"There was a problem with config file. Create/fix it and try again");
             }
         }
 
@@ -67,9 +67,22 @@ namespace CloudStorage.Server {
         /// <returns></returns>
         public async Task Start(int Port, bool IsEncryptionEnabled)
         {
-            DiContainer.ValidateProvider();
+            try
+            {
+                DiContainer.ValidateProvider();
+                Initialize();
+            }
+            catch (Exception ex)
+            {
+                logger.Log($"Server didn't start. Detailed error: {ex.Message}", RecordKind.Error);
+                throw ex;
+            }
+
             ConnectionsListener = new TcpListener(IPAddress.Any, Port);
             ConnectionsListener.Start();
+
+            logger.Log($"Started the server at {DefaultServerValues.ServerExternalIP}:{Port}", RecordKind.Status);
+
             while (true)
                 try
                 {
@@ -89,12 +102,9 @@ namespace CloudStorage.Server {
                     logger.Log("Wrong server base directory was provided.", RecordKind.Error);
                     Dispose();
                     break;
-                }
-                catch (InvalidOperationException) { return; }
-                catch (SocketException)
-                {
-                    logger.Log("Stopped the server.", RecordKind.Status);
-                }
+                }// when server is disposed, these exceptions are thrown.
+                catch (InvalidOperationException) { }
+                catch (SocketException){ }
         }
 
         /// <summary>
@@ -122,6 +132,9 @@ namespace CloudStorage.Server {
                 }
 
                 logger.Log("Waiting for all users to disconnect.", RecordKind.Status);
+
+                if (connections.Count().Equals(0))
+                    return;
 
                 Task.WaitAll(connections.Keys.ToArray());
             }
