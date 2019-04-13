@@ -16,6 +16,9 @@ namespace CloudStorage.Server.FileSystem
         protected static char alternateSeparator { get; set; } = Path.DirectorySeparatorChar;
         protected static char currentSeparator { get; set; } = Path.AltDirectorySeparatorChar;
 
+        /// <summary>
+        /// Throws exception if <see cref="DefaultServerValues.BaseDirectory"/> is not a path.
+        /// </summary>
         public FtpUnixFileSystemProvider()
         {
             BaseDirectory = DefaultServerValues.BaseDirectory;
@@ -29,8 +32,12 @@ namespace CloudStorage.Server.FileSystem
             get => baseDirectory;
             set
             {
-                if (Directory.Exists(value)) baseDirectory = value;
-                else throw new DirectoryNotFoundException($"{value} was not found.");
+                if (!Directory.Exists(value))
+                {
+                    Directory.CreateDirectory(value);
+                }
+
+                baseDirectory = value;
             }
         }
         /// <summary>

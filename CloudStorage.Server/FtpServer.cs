@@ -36,7 +36,7 @@ namespace CloudStorage.Server {
         {
             try
             {
-                var settings = XmlConfigParser.ParseSettings();
+                var settings = XmlConfigHelper.ParseSettings();
 
                 //For server to operate as you want , 
                 //you must set desired values in Configuration.xml
@@ -48,9 +48,14 @@ namespace CloudStorage.Server {
                 DefaultServerValues.LoggingPath = settings.LoggingPath;
                 DataConnection.MaxPort = settings.MaxPort;
                 DataConnection.MinPort = settings.MinPort;
+
+                //if this throws, base dir is basically a set of characters.
+
+                var fs = DiContainer.Provider.Resolve<ICloudStorageFileSystemProvider>();
             }
             catch 
             {
+                logger.Log("There was a problem with config file. Check base directory / ip / ports and try again.", RecordKind.Error);
                 throw new ApplicationException($"There was a problem with config file. Create/fix it and try again");
             }
         }
@@ -65,7 +70,7 @@ namespace CloudStorage.Server {
         /// and allow users to manage their virtual storage
         /// </summary>
         /// <returns></returns>
-        public async Task Start(int Port, bool IsEncryptionEnabled)
+        public async Task Start(bool IsEncryptionEnabled)
         {
             try
             {
@@ -78,10 +83,10 @@ namespace CloudStorage.Server {
                 throw ex;
             }
 
-            ConnectionsListener = new TcpListener(IPAddress.Any, Port);
+            ConnectionsListener = new TcpListener(IPAddress.Any, DefaultServerValues.FtpControlPort);
             ConnectionsListener.Start();
 
-            logger.Log($"Started the server at {DefaultServerValues.ServerExternalIP}:{Port}", RecordKind.Status);
+            logger.Log($"Started the server at {DefaultServerValues.ServerExternalIP}:{DefaultServerValues.FtpControlPort}", RecordKind.Status);
 
             while (true)
                 try
@@ -101,10 +106,10 @@ namespace CloudStorage.Server {
                 {
                     logger.Log("Wrong server base directory was provided.", RecordKind.Error);
                     Dispose();
-                    break;
+                    return;
                 }// when server is disposed, these exceptions are thrown.
-                catch (InvalidOperationException) { }
-                catch (SocketException){ }
+                catch (InvalidOperationException) { return; }
+                catch (SocketException){ return; }
         }
 
         /// <summary>
@@ -136,7 +141,7 @@ namespace CloudStorage.Server {
                 if (connections.Count().Equals(0))
                     return;
 
-                Task.WaitAll(connections.Keys.ToArray());
+                await Task.WhenAll(connections.Keys.ToArray());
             }
             finally
             {

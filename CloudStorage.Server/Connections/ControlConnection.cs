@@ -122,7 +122,7 @@ namespace CloudStorage.Server {
 
         #region Main connection methods
 
-        public async Task InitiateConnection(/*CancellationToken token*/)
+        public async Task InitiateConnection()
         {
             SendResponse(new FtpReply() { ReplyCode = FtpReplyCode.ServiceReady, Message = "Service is ready." }, false);
 
@@ -144,10 +144,8 @@ namespace CloudStorage.Server {
             while (CommandStreamReader != null)
             {
                 var command = await CommandStreamReader.ReadLineAsync();
-                //According to https://stackoverflow.com/questions/6958255/what-are-some-reasons-networkstream-read-would-hang-block
-                //While connected, network stream blocks and waits for incoming commands.
-                //if client disconnects, networkstream simply returns empty string, even though tcpClient's IsConnected might be "true"
-                //To summarize, simply close the connection if command was null
+
+                //Close the connection if command was null
                 if (string.IsNullOrEmpty(command))
                 {
                     Dispose();
