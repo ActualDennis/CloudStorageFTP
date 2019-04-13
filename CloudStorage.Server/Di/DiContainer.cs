@@ -14,16 +14,37 @@ namespace CloudStorage.Server.Di {
         /// You MUST instantiate this property using <see cref="DiConfigBuilder"/>.
         /// </summary>
         public static DependencyProvider Provider { get; set; }
-        public static void ValidateConfig()
+        
+        /// <summary>
+        /// Value indicating if container was successfully constructed
+        /// </summary>
+        public static bool IsConstructed { get; set; } = false;
+
+        /// <summary>
+        /// This method is being called before ftp server starts, to validate DiContainer.
+        /// </summary>
+        public static void ValidateProvider()
         {
-            try
+            if (!IsConstructed)
+                throw new ApplicationException("DiContainer was not constructed. Use Construct() method to construct it.");
+
+            Provider.ValidateConfig();
+        }
+
+        /// <summary>
+        /// Must call this method for DiContainer to work.
+        /// </summary>
+        /// <param name="configBuilder"></param>
+        public static void Construct(DiConfigBuilder configBuilder)
+        {
+            if (!configBuilder.Constructed)
             {
-                Provider.ValidateConfig();
+                throw new InvalidOperationException("Provide a constructed DiConfigBuilder.");
             }
-            catch (Exception ex)
-            {
-                throw new ApplicationException($"Dependency injection error: {ex.Message}.");
-            }
+
+            Provider = new DependencyProvider(configBuilder.config);
+
+            IsConstructed = true;
         }
     }
 }

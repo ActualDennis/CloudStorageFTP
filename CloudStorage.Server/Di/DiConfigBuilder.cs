@@ -23,7 +23,24 @@ namespace CloudStorage.Server.Di
             this.config = new DiConfiguration();
         }
 
-        private DiConfiguration config { get; set; }
+        /// <summary>
+        /// Config to use while DiContainer construction
+        /// </summary>
+        public DiConfiguration config { get; set; }
+
+        public DiConfigFlags ConfigFlags { get; set; }
+
+        /// <summary>
+        /// Value indicates if this builder is ready to be passed to DiContainer.
+        /// </summary>
+        public bool Constructed
+        {
+            get =>
+                ConfigFlags.HasFlag(DiConfigFlags.NecessaryClassesUsed)
+                && ConfigFlags.HasFlag(DiConfigFlags.LoggerUsed)
+                && ConfigFlags.HasFlag(DiConfigFlags.FilesystemUsed)
+                && ConfigFlags.HasFlag(DiConfigFlags.AuthUsed);
+        }
 
         /// <summary>
         /// You must call this method to obtain minimum ftp server functionality.
@@ -35,73 +52,76 @@ namespace CloudStorage.Server.Di
             config.RegisterTransient<FtpCommandFactory, FtpCommandFactory>();
             config.RegisterSingleton<DatabaseHelper, DatabaseHelper>();
             config.RegisterTransient<ControlConnection, ControlConnection>();
+            ConfigFlags |= DiConfigFlags.NecessaryClassesUsed;
         }
 
-        public void UseLogger(Type loggerType, ObjLifetime lifetime)
+        /// <summary>
+        /// You must call this method to obtain logger.
+        /// </summary>
+        /// <param name="loggerType">Type of logger to use</param>
+        /// <param name="UseDefault">Use default logger(file logger)</param>
+        public void UseLogger(Type loggerType, bool UseDefault)
         {
-
-            if (!typeof(ILogger).IsAssignableFrom(loggerType))
+            if (UseDefault)
             {
-                throw new InvalidOperationException($"{loggerType.ToString()} is not a valid logger.");
+                loggerType = typeof(AutomaticFileLogger);
             }
-
-            switch (lifetime)
+            else
             {
-                case ObjLifetime.Singleton:
-                    {
-                        config.RegisterSingleton(typeof(ILogger), loggerType);
-                        break;
-                    }
-                case ObjLifetime.Transient:
-                    {
-                        config.RegisterTransient(typeof(ILogger), loggerType);
-                        break;
-                    }
+                if (!typeof(ILogger).IsAssignableFrom(loggerType))
+                {
+                    throw new InvalidOperationException($"{loggerType.ToString()} is not a valid logger.");
+                }
             }
-        }
-
-        public void UseAuthentication(Type authType, ObjLifetime lifetime)
-        {
-            if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
-            {
-                throw new InvalidOperationException($"{authType.ToString()} is not a valid authentication provider.");
-            }
-
-            switch (lifetime)
-            {
-                case ObjLifetime.Singleton:
-                    {
-                        config.RegisterSingleton(typeof(IAuthenticationProvider), authType);
-                        break;
-                    }
-                case ObjLifetime.Transient:
-                    {
-                        config.RegisterTransient(typeof(IAuthenticationProvider), authType);
-                        break;
-                    }
-            }
-        }
         
-        public void UseFileSystem(Type filesystemType, ObjLifetime lifetime)
+            config.RegisterSingleton(typeof(ILogger), loggerType);
+            ConfigFlags |= DiConfigFlags.LoggerUsed;
+        }
+        /// <summary>
+        ///  You must call this method to obtain authentication.
+        /// </summary>
+        /// <param name="authType">Type of authentication to use</param>
+        /// <param name="UseDefault">Use default authentication(database authentication)</param>
+        public void UseAuthentication(Type authType, bool UseDefault)
         {
-            if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
+            if (UseDefault)
             {
-                throw new InvalidOperationException($"{filesystemType.ToString()} is not a valid filesystem.");
+                authType = typeof(FtpDbAuthenticationProvider);
+            }
+            else
+            {
+                if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
+                {
+                    throw new InvalidOperationException($"{authType.ToString()} is not a valid authentication provider.");
+                }
             }
 
-            switch (lifetime) 
+            config.RegisterSingleton(typeof(IAuthenticationProvider), authType);
+            ConfigFlags |= DiConfigFlags.AuthUsed;
+        }
+
+        /// <summary>
+        /// You must call this method to obtain filesystem functionality.
+        /// </summary>
+        /// <param name="filesystemType">Type of filesystem to use</param>
+        /// <param name="UseDefault">Use default filesystem(unix-like)</param>
+        public void UseFileSystem(Type filesystemType, bool UseDefault)
+        {
+            if (UseDefault)
             {
-                case ObjLifetime.Singleton:
-                    {
-                        config.RegisterSingleton(typeof(ICloudStorageFileSystemProvider), filesystemType);
-                        break;
-                    }
-                case ObjLifetime.Transient:
-                    {
-                        config.RegisterTransient(typeof(ICloudStorageFileSystemProvider), filesystemType);
-                        break;
-                    }
+                filesystemType = typeof(CloudStorageUnixFileSystemProvider);
             }
+            else
+            {
+                if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
+                {
+                    throw new InvalidOperationException($"{filesystemType.ToString()} is not a valid filesystem.");
+                }
+            }
+
+
+            config.RegisterTransient(typeof(ICloudStorageFileSystemProvider), filesystemType);
+            ConfigFlags |= DiConfigFlags.FilesystemUsed;
         }
     }
 }

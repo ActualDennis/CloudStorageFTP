@@ -62,12 +62,12 @@ namespace CloudStorage.Server {
         }
         /// <summary>
         /// Call this method if you want to start listening for incoming requests
-        /// and allow users manage their virtual storage
+        /// and allow users to manage their virtual storage
         /// </summary>
         /// <returns></returns>
         public async Task Start(int Port, bool IsEncryptionEnabled)
         {
-            DiContainer.ValidateConfig();
+            DiContainer.ValidateProvider();
             ConnectionsListener = new TcpListener(IPAddress.Any, Port);
             ConnectionsListener.Start();
             while (true)
@@ -96,9 +96,10 @@ namespace CloudStorage.Server {
                     logger.Log("Stopped the server.", RecordKind.Status);
                 }
         }
+
         /// <summary>
         /// Cancels and removes all tasks in <see cref="connections"/> if flag is true,
-        /// Waits for tasks to complete and removes all tasks if flag is false.
+        /// Waits for tasks to complete / removes all tasks if flag is false.
         /// </summary>
         /// <param name="waitForUsersToDisconnect"></param>
         /// <returns></returns>
