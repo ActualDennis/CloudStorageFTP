@@ -13,14 +13,13 @@ var configBuilder = new DiConfigBuilder();
 
 configBuilder.UseNeccessaryClasses();
 
-//use default implementation - (unix-like)
-configBuilder.UseFileSystem(null, true);
+configBuilder.UseFileSystem();
 
-//default implementation - using database
-configBuilder.UseAuthentication(null, true);
+//using default implementation.
+configBuilder.UseAuthentication();
 
-//custom logger, which must implement DenCloud.Core.Logging.ILogger
-configBuilder.UseLogger(typeof(InterfaceLogger), false);
+//custom logger
+configBuilder.UseLogger<InterfaceLogger>();
 
 //Dependency provider is ready.
 DiContainer.Construct(configBuilder);
