@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>DenCloud.Core</id>
+    <version>1.0.6</version>
+    <title>Small ftp server.</title>
+    <authors>actualdennis</authors>
+    <owners>actualdennis</owners>
+    <description>Library containing ftp server.</description>
+	<releaseNotes>Di API fixes</releaseNotes>
+    <copyright>Copyright 2019</copyright>
+  </metadata>
+</package>
