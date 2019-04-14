@@ -56,22 +56,38 @@ namespace DenCloud.Core.Di
         }
 
         /// <summary>
+        /// Use default logging <see cref="AutomaticFileLogger"/>
+        /// </summary>
+        public void UseLogger()
+        {
+            UseLogger(typeof(AutomaticFileLogger));
+        }
+
+        /// <summary>
+        /// Use default auth <see cref="FtpDbAuthenticationProvider"/>
+        /// </summary>
+        public void UseAuthentication()
+        {
+            UseLogger(typeof(FtpDbAuthenticationProvider));
+        }
+
+        /// <summary>
+        /// Use default filesystem <see cref="CloudStorageUnixFileSystemProvider"/>
+        /// </summary>
+        public void UseFileSystem()
+        {
+            UseLogger(typeof(CloudStorageUnixFileSystemProvider));
+        }
+
+        /// <summary>
         /// You must call this method to obtain logger.
         /// </summary>
         /// <param name="loggerType">Type of logger to use</param>
-        /// <param name="UseDefault">Use default logger(file logger)</param>
-        public void UseLogger(Type loggerType, bool UseDefault)
+        public void UseLogger(Type loggerType)
         {
-            if (UseDefault)
+            if (!typeof(ILogger).IsAssignableFrom(loggerType))
             {
-                loggerType = typeof(AutomaticFileLogger);
-            }
-            else
-            {
-                if (!typeof(ILogger).IsAssignableFrom(loggerType))
-                {
-                    throw new InvalidOperationException($"{loggerType.ToString()} is not a valid logger.");
-                }
+                throw new InvalidOperationException($"{loggerType.ToString()} is not a valid logger.");
             }
         
             config.RegisterSingleton(typeof(ILogger), loggerType);
@@ -81,19 +97,11 @@ namespace DenCloud.Core.Di
         ///  You must call this method to obtain authentication.
         /// </summary>
         /// <param name="authType">Type of authentication to use</param>
-        /// <param name="UseDefault">Use default authentication(database authentication)</param>
-        public void UseAuthentication(Type authType, bool UseDefault)
+        public void UseAuthentication(Type authType)
         {
-            if (UseDefault)
+            if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
             {
-                authType = typeof(FtpDbAuthenticationProvider);
-            }
-            else
-            {
-                if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
-                {
-                    throw new InvalidOperationException($"{authType.ToString()} is not a valid authentication provider.");
-                }
+                throw new InvalidOperationException($"{authType.ToString()} is not a valid authentication provider.");
             }
 
             config.RegisterSingleton(typeof(IAuthenticationProvider), authType);
@@ -104,21 +112,12 @@ namespace DenCloud.Core.Di
         /// You must call this method to obtain filesystem functionality.
         /// </summary>
         /// <param name="filesystemType">Type of filesystem to use</param>
-        /// <param name="UseDefault">Use default filesystem(unix-like)</param>
-        public void UseFileSystem(Type filesystemType, bool UseDefault)
+        public void UseFileSystem(Type filesystemType)
         {
-            if (UseDefault)
+            if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
             {
-                filesystemType = typeof(CloudStorageUnixFileSystemProvider);
+                throw new InvalidOperationException($"{filesystemType.ToString()} is not a valid filesystem.");
             }
-            else
-            {
-                if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
-                {
-                    throw new InvalidOperationException($"{filesystemType.ToString()} is not a valid filesystem.");
-                }
-            }
-
 
             config.RegisterTransient(typeof(ICloudStorageFileSystemProvider), filesystemType);
             ConfigFlags |= DiConfigFlags.FilesystemUsed;
