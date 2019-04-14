@@ -1,4 +1,4 @@
-namespace DenCloud.Core.Migrations
+namespace CloudStorage.Server.Migrations
 {
     using System;
     using System.Data.Entity;
@@ -9,7 +9,7 @@ namespace DenCloud.Core.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(DenCloud.Core.Authentication.ApplicationDbContext context)

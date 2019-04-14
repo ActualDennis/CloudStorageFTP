@@ -48,6 +48,7 @@ namespace DenCloud.Core.Di
         public void UseNeccessaryClasses()
         {
             config.RegisterTransient<FtpServer, FtpServer>();
+            config.RegisterTransient<ApplicationDbContext, ApplicationDbContext>();
             config.RegisterTransient<DataConnection, DataConnection>();
             config.RegisterTransient<FtpCommandFactory, FtpCommandFactory>();
             config.RegisterSingleton<DatabaseHelper, DatabaseHelper>();
@@ -68,7 +69,7 @@ namespace DenCloud.Core.Di
         /// </summary>
         public void UseAuthentication()
         {
-            UseLogger(typeof(FtpDbAuthenticationProvider));
+            UseAuthentication(typeof(FtpDbAuthenticationProvider));
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace DenCloud.Core.Di
         /// </summary>
         public void UseFileSystem()
         {
-            UseLogger(typeof(CloudStorageUnixFileSystemProvider));
+            UseFileSystem(typeof(CloudStorageUnixFileSystemProvider));
         }
 
         /// <summary>

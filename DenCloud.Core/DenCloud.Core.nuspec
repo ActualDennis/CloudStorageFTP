@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>DenCloud.Core</id>
-    <version>1.0.6.3</version>
+    <version>1.0.6.5</version>
     <title>Customizable ftp server.</title>
     <authors>actualdennis</authors>
     <owners>actualdennis</owners>
     <description>An implementation of "cloud storage" based on FTP / FTPS. Supports SSL/TLS encryption, database authentication, file logging. Has customizable authentication / logging / filesystem ;Uses DI. Server supports raw ftp commands and some essential FTP extensions.
 	For examples of usage, please visit: https://github.com/ActualDennis/DenCloud.Core for WPF version : https://github.com/ActualDennis/DenCloud.WPF
 	</description>
-	<releaseNotes>Updated DI API</releaseNotes>
+	<releaseNotes>Final changes (probably) to DI API</releaseNotes>
     <copyright>Copyright 2019</copyright>
 	<tags>Ftp Server TLS filesystem Dependency Injection</tags>
   </metadata>

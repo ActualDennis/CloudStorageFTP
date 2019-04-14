@@ -48,7 +48,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -380,19 +380,10 @@
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\AutomaticFileLogger.cs" />
-    <Compile Include="Migrations\20190131125557_InitialCreate.cs" />
-    <Compile Include="Migrations\20190131125557_InitialCreate.Designer.cs">
-      <DependentUpon>20190131125557_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201904141522304_Initial.cs" />
+    <Compile Include="Migrations\201904141522304_Initial.Designer.cs">
+      <DependentUpon>201904141522304_Initial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201902061043515_noName.cs" />
-    <Compile Include="Migrations\201902061043515_noName.Designer.cs">
-      <DependentUpon>201902061043515_noName.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201902090813513_AddIsDisabled.cs" />
-    <Compile Include="Migrations\201902090813513_AddIsDisabled.Designer.cs">
-      <DependentUpon>201902090813513_AddIsDisabled.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\ApplicationDbContextModelSnapshot.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Misc\ActionsTracker.cs" />
     <Compile Include="Misc\ConnectionSecurityChangedEventArgs.cs" />
@@ -407,14 +398,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201902061043515_noName.resx">
-      <DependentUpon>201902061043515_noName.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201902090813513_AddIsDisabled.resx">
-      <DependentUpon>201902090813513_AddIsDisabled.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.6.2 %28x86 and x64%29</ProductName>
@@ -425,6 +408,11 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201904141522304_Initial.resx">
+      <DependentUpon>201904141522304_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

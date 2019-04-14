@@ -1,4 +1,5 @@
 ﻿using DenCloud.Core.Helpers;
+using System.Data.Entity;
 
 namespace DenCloud.Core.Authentication
 {
@@ -8,13 +9,19 @@ namespace DenCloud.Core.Authentication
     /// </summary>
     public class FtpDbAuthenticationProvider : IAuthenticationProvider
     {
+        public FtpDbAuthenticationProvider(ApplicationDbContext db)
+        {
+            this.db = db;
+            db.Database.CreateIfNotExists();
+        }
+
+        private ApplicationDbContext db { get; set; }
+
         public bool Authenticate(string username, string password)
         {
             if (username == "anonymous") return true;
 
-            using (var context = new ApplicationDbContext())
-            {
-                var user = context.Users.Find(Hasher.GetHash(username));
+                var user = db.Users.Find(Hasher.GetHash(username));
 
                 if (user == null)
                     return false;
@@ -28,7 +35,6 @@ namespace DenCloud.Core.Authentication
                     return true;
 
                 return false;
-            }
         }
     }
 }
