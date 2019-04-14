@@ -80,10 +80,33 @@ namespace DenCloud.Core.Di
         }
 
         /// <summary>
-        /// You must call this method to obtain logger.
+        ///  You must call this method to obtain logger.
         /// </summary>
-        /// <param name="loggerType">Type of logger to use</param>
-        public void UseLogger(Type loggerType)
+        /// <typeparam name="TLogger">Type of logger to use</typeparam>
+        public void UseLogger<TLogger>() where TLogger : ILogger
+        {
+            UseLogger(typeof(TLogger));
+        }
+
+        /// <summary>
+        ///  You must call this method to obtain authentication.
+        /// </summary>
+        /// <typeparam name="TAuthentication">Type of auth to use</typeparam>
+        public void UseAuthentication<TAuthentication>() where TAuthentication : IAuthenticationProvider
+        {
+            UseAuthentication(typeof(TAuthentication));
+        }
+
+        /// <summary>
+        ///  You must call this method to obtain filesystem.
+        /// </summary>
+        /// <typeparam name="TFileSystem">Type of filesystem to use</typeparam>
+        public void UseFileSystem<TFileSystem>() where TFileSystem : ICloudStorageFileSystemProvider
+        {
+            UseFileSystem(typeof(TFileSystem));
+        }
+
+        private void UseLogger(Type loggerType)
         {
             if (!typeof(ILogger).IsAssignableFrom(loggerType))
             {
@@ -93,11 +116,8 @@ namespace DenCloud.Core.Di
             config.RegisterSingleton(typeof(ILogger), loggerType);
             ConfigFlags |= DiConfigFlags.LoggerUsed;
         }
-        /// <summary>
-        ///  You must call this method to obtain authentication.
-        /// </summary>
-        /// <param name="authType">Type of authentication to use</param>
-        public void UseAuthentication(Type authType)
+
+        private void UseAuthentication(Type authType)
         {
             if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
             {
@@ -108,11 +128,7 @@ namespace DenCloud.Core.Di
             ConfigFlags |= DiConfigFlags.AuthUsed;
         }
 
-        /// <summary>
-        /// You must call this method to obtain filesystem functionality.
-        /// </summary>
-        /// <param name="filesystemType">Type of filesystem to use</param>
-        public void UseFileSystem(Type filesystemType)
+        private void UseFileSystem(Type filesystemType)
         {
             if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
             {
