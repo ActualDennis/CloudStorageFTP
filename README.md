@@ -1,14 +1,7 @@
-# CloudStorageFtp
+# "DenCloud" Library
 This is simple "Cloud-storage" implementation using File Transfer Protocol, which is meant to be run on <code>one</code> machine.
 
-To start <strong>using</strong> the server, do the following:
-    
-    1.Clone the repo.
-    2.Edit Configuration.xml to meet your needs(if something's unclear, check the comments right to the tag you're stuck with).
-    3.Compile it using VS2017/VS2019.
-    4.Go the folder where it's compiled(usually bin/debug/*.exe).
-    5.Run the exe.
-<strong>Warning: </strong>Current version doesn't support SSL certificates passwords. To use SSL, just make sure your certificate does not have a password. 
+<strong>Warning: </strong>Current version doesn't support SSL certificates passwords. To use SSL, just make sure your certificate does not have a password and is installed on your machine.
 
 <strong>Tip:</strong> If you're planning on handling big amount of users using this program, you should make sure that port range difference(<code>MaxPort - MinPort</code>) is more than <code><strong>10</strong></code>
 
@@ -16,28 +9,34 @@ To start <strong>using</strong> the server, do the following:
 As a rule, you must use DI pattern in this API(<code>DenInject</code>), which leads us to:
 1. Registering dependencies:
   ```csharp
- var config = new DiConfiguration();
-  
- config.RegisterSingleton<FtpServer, FtpServer>();
- config.RegisterSingleton<IAuthenticationProvider, FtpDbAuthenticationProvider>();
-  ...
-  
- Provider = new DependencyProvider(config);
+var configBuilder = new DiConfigBuilder();
+
+configBuilder.UseNeccessaryClasses();
+
+//use default implementation - (unix-like)
+configBuilder.UseFileSystem(null, true);
+
+//default implementation - using database
+configBuilder.UseAuthentication(null, true);
+
+//custom logger, which must implement DenCloud.Core.Logging.ILogger
+configBuilder.UseLogger(typeof(InterfaceLogger), false);
+
+//Dependency provider is ready.
+DiContainer.Construct(configBuilder);
 ```
-Dependencies provider <strong>must</strong> be set in DiContainer.Provider class <strong>AND</strong> should be later validated as:
+ 2.Validation of your provider before starting the server as:
   ```csharp
-   Provider.ValidateConfig();
+   DiContainer.ValidateProvider();
  ```
- 2. Resolving Ftp Server dependency, i.e:
+ 3. Resolving Ftp Server dependency, i.e:
    ```csharp
     var server = DiContainer.Provider.Resolve<FtpServer>();
    ```
- 3. Starting the server:
+ 4. Starting the server:
    ```csharp
-    Task.Run(() => server.Start(
-        PortReadFromConfigFile, 
-        File.Exists(DefaultServerValues.CertificateLocation)));//basic check to see if ssl encryption will be used.
+    Task.Run(() => server.Start(IsEncryptionUsed));
    ```
- For any other questions, you can browse this repo, which itself is an example of API usage.
+ For any other questions, you can browse [this](https://github.com/ActualDennis/DenCloud.WPF) repo, which itself is an example of API usage.
 
     
