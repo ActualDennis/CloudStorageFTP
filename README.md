@@ -36,6 +36,12 @@ DiContainer.Construct(configBuilder);
    ```csharp
     Task.Run(() => server.Start(IsEncryptionUsed));
    ```
+ To access storage, users can:
+ 
+    1. Use 'anonymous' login and any password.
+    2. USE SITE REG <login> <password> command while logged in as 'anonymous'(Using SSL of course) - This will register user in database as <login> with password <password>.
+    
+ 
  For any other questions, you can browse [this](https://github.com/ActualDennis/DenCloud.WPF) repo, which itself is an example of API usage.
 
     
