@@ -21,20 +21,20 @@ namespace DenCloud.Core.Authentication
         {
             if (username == "anonymous") return true;
 
-                var user = db.Users.Find(Hasher.GetHash(username));
+            var user = db.Users.Find(Hasher.GetHash(username));
 
-                if (user == null)
-                    return false;
-
-                if (user.IsDisabled)
-                    return false;
-
-                var passwdHash = Hasher.GetHash(password);
-
-                if (passwdHash.Equals(user.PasswordHash))
-                    return true;
-
+            if (user == null)
                 return false;
+
+            if (user.IsDisabled)
+                return false;
+
+            var passwdHash = Hasher.GetHash(password);
+
+            if (passwdHash.Equals(user.PasswordHash))
+                return true;
+
+            return false;
         }
     }
 }

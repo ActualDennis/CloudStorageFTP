@@ -13,5 +13,6 @@ namespace DenCloud.Core.Data {
         public string LoggingPath;
         public int MaxPort;
         public int MinPort;
+        public int PassiveConnectionRetryFor;
     }
 }

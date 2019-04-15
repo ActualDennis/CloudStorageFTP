@@ -27,11 +27,13 @@ namespace DenCloud.Core.Connections
             FileSystemProvider = fileSystemProvider;
         }
 
-        private const int MinDataConnections = 10;
+        private const int MinDataConnections = 1;
 
         private static int _minPort;
 
         private static int _maxPort;
+
+        private static int _passiveConnectionRetryFor;
 
         public static int MinPort
         {
@@ -51,7 +53,7 @@ namespace DenCloud.Core.Connections
             get => _maxPort;
             set
             {
-                if((value > 65535) || (value < 0 + MinDataConnections))
+                if((value > 65535) || (value < MinPort + MinDataConnections))
                     throw new InvalidOperationException("Wrong port range.");
 
                 _maxPort = value;
@@ -117,6 +119,22 @@ namespace DenCloud.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Value indicating that if all ports for data connection are occupied,
+        /// How many times will it retry opening the connection.
+        /// </summary>
+        public static int PassiveConnectionRetryFor
+        {
+            get => _passiveConnectionRetryFor;
+            set
+            {
+                if (value < 0)
+                    throw new InvalidOperationException("Wrong value for number of attempts");
+
+                _passiveConnectionRetryFor = value;
+            }
+        }
+
         public bool IsConnectionOpen => MainConnection != null && MainConnection.Connected;
 
         public bool IsEncryptionActivated { get; private set; }
@@ -148,31 +166,42 @@ namespace DenCloud.Core.Connections
             if (ListeningPort != 0)
                 return ListeningPort;
 
-            // find free port
-            var port = MinPort;
-            for (; port < MaxPort; ++port)
+            int port = 0;
+                                                    
+            for(int attempt = 0; attempt < PassiveConnectionRetryFor + 1; ++attempt)
             {
-                PassiveListener = new TcpListener(IPAddress.Any, port);
-                try
+                for (port = MinPort; port < MaxPort; ++port)
                 {
-                    PassiveListener.Start();
+                    PassiveListener = new TcpListener(IPAddress.Any, port);
+                    try
+                    {
+                        PassiveListener.Start();
+                        break;
+                    }
+                    catch (SocketException)
+                    {
+                        logger.Log($"Port {port} is occupied.", RecordKind.Status);
+                    }
+                }
+
+                if (port == MaxPort)
+                {
+                    logger.Log($"All ports are occupied. Retrying...", RecordKind.Status);
+                }
+                else
+                { // found free port
                     break;
                 }
-                catch (SocketException)
-                {
-                    logger.Log($"Port {port} is occupied.", RecordKind.Status);
-                }
-            }
 
-            if (port == MaxPort)
-            {
-                ListeningPort = 0;
-                throw new SystemException("All ports are occupied. Try again later.");
+                if(attempt == PassiveConnectionRetryFor)
+                {
+                    throw new SystemException($"Didn't find any free ports. Try again later.");
+                }
             }
 
             ListeningPort = port;
 
-            logger.Log($"Listening on :{port}", RecordKind.Status);
+            logger.Log($"Listening on port {port}", RecordKind.Status);
 
             return ListeningPort;
         }

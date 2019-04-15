@@ -48,10 +48,11 @@ namespace DenCloud.Core {
                 DefaultServerValues.LoggingPath = settings.LoggingPath;
                 DataConnection.MaxPort = settings.MaxPort;
                 DataConnection.MinPort = settings.MinPort;
-
+                DataConnection.PassiveConnectionRetryFor = settings.PassiveConnectionRetryFor;
                 //if this throws, base dir is basically a set of characters.
 
                 var fs = DiContainer.Provider.Resolve<ICloudStorageFileSystemProvider>();
+
             }
             catch 
             {

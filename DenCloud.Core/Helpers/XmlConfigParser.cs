@@ -22,7 +22,8 @@ namespace DenCloud.Core.Helpers {
                 LoggingPath = settingsFile["ConfigVariables"]["LoggingPath"].FirstChild?.Value,
                 MaxPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMaximum"].FirstChild.Value),
                 MinPort = int.Parse(settingsFile["ConfigVariables"]["PortRangeMinimum"].FirstChild.Value),
-                ServerExternalIP = settingsFile["ConfigVariables"]["ServerExternalIP"].FirstChild.Value
+                ServerExternalIP = settingsFile["ConfigVariables"]["ServerExternalIP"].FirstChild.Value,
+                PassiveConnectionRetryFor = int.Parse(settingsFile["ConfigVariables"]["PassiveConnectionRetryFor"].FirstChild.Value)
             };
         }
 
@@ -33,7 +34,8 @@ namespace DenCloud.Core.Helpers {
             string loggingPath,
             string PortMax,
             string PortMin,
-            string ServerIP)
+            string ServerIP,
+            string PassiveConnectionRetryFor)
         {
             using (XmlWriter writer = XmlWriter.Create(ConfigDefaultLocation))
             {
@@ -46,6 +48,7 @@ namespace DenCloud.Core.Helpers {
                 writer.WriteElementString("PortRangeMaximum", PortMax);
                 writer.WriteElementString("PortRangeMinimum", PortMin);
                 writer.WriteElementString("ServerExternalIP", ServerIP);
+                writer.WriteElementString("PassiveConnectionRetryFor", PassiveConnectionRetryFor);
                 writer.WriteEndElement();
                 writer.WriteEndDocument();
             }
