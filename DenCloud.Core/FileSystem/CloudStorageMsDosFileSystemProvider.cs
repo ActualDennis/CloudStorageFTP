@@ -9,7 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DenCloud.Core.FileSystem {
-    public class CloudStorageMsDosFileSystemProvider : FtpMsDosFileSystemProvider, ICloudStorageFileSystemProvider {
+    public class CloudStorageMsDosFileSystemProvider : FtpMsDosFileSystemProvider, IFtpFileSystemProvider<FileSystemEntry>
+    {
         public CloudStorageMsDosFileSystemProvider()
         {
            

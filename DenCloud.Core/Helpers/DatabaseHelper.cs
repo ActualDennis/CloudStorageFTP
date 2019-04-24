@@ -8,12 +8,12 @@ namespace DenCloud.Core.Helpers
 {
     public class DatabaseHelper
     {
-        public DatabaseHelper(ICloudStorageFileSystemProvider FileSystemProvider)
+        public DatabaseHelper(IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider)
         {
             this.FileSystemProvider = FileSystemProvider;
         }
 
-        private ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
+        private IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider { get; set; }
 
         public async Task NewRecord(string username, string password)
         {

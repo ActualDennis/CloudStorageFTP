@@ -51,13 +51,13 @@ namespace DenCloud.Core {
                 DataConnection.PassiveConnectionRetryFor = settings.PassiveConnectionRetryFor;
                 //if this throws, base dir is basically a set of characters.
 
-                var fs = DiContainer.Provider.Resolve<ICloudStorageFileSystemProvider>();
+               DiContainer.Provider.Resolve<IFtpFileSystemProvider<FileSystemEntry>>();
 
             }
-            catch 
+            catch(Exception ex)
             {
                 logger.Log("There was a problem with config file. Check base directory / ip / ports and try again.", RecordKind.Error);
-                throw new ApplicationException($"There was a problem with config file. Create/fix it and try again");
+                throw new ApplicationException($"There was a problem with config file: {ex.Message}");
             }
         }
 

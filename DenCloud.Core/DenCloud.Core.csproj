@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{467AABD3-873D-4D3F-A2A0-563571839314}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>CloudStorage.Server</RootNamespace>
-    <AssemblyName>CloudStorage.Server</AssemblyName>
+    <RootNamespace>DenCloud.Core</RootNamespace>
+    <AssemblyName>DenCloud.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
     <FileAlignment>512</FileAlignment>
@@ -37,7 +37,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -48,14 +48,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\CloudStorage.Server.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\DenCloud.Core.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -68,9 +68,6 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DenInject.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DenInject.Core.1.0.3.2\lib\net462\DenInject.Core.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -356,7 +353,6 @@
     <Compile Include="FileSystem\CloudStorageUnixFileSystemProvider.cs" />
     <Compile Include="FileSystem\DefaultFileSystemProvider.cs" />
     <Compile Include="FileSystem\FtpMsDosFileSystemProvider.cs" />
-    <Compile Include="FileSystem\ICloudStorageFileSystemProvider.cs" />
     <Compile Include="Exceptions\WrongPathFormatException.cs" />
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Authentication\FtpUser.cs" />

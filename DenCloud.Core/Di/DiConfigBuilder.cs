@@ -102,41 +102,27 @@ namespace DenCloud.Core.Di
         ///  You must call this method to obtain filesystem.
         /// </summary>
         /// <typeparam name="TFileSystem">Type of filesystem to use</typeparam>
-        public void UseFileSystem<TFileSystem>() where TFileSystem : ICloudStorageFileSystemProvider
+        public void UseFileSystem<TFileSystem>() 
+            where TFileSystem : IFtpFileSystemProvider<FileSystemEntry>
         {
             UseFileSystem(typeof(TFileSystem));
         }
 
         private void UseLogger(Type loggerType)
-        {
-            if (!typeof(ILogger).IsAssignableFrom(loggerType))
-            {
-                throw new InvalidOperationException($"{loggerType.ToString()} is not a valid logger.");
-            }
-        
+        {     
             config.RegisterSingleton(typeof(ILogger), loggerType);
             ConfigFlags |= DiConfigFlags.LoggerUsed;
         }
 
         private void UseAuthentication(Type authType)
         {
-            if (!typeof(IAuthenticationProvider).IsAssignableFrom(authType))
-            {
-                throw new InvalidOperationException($"{authType.ToString()} is not a valid authentication provider.");
-            }
-
             config.RegisterSingleton(typeof(IAuthenticationProvider), authType);
             ConfigFlags |= DiConfigFlags.AuthUsed;
         }
 
         private void UseFileSystem(Type filesystemType)
         {
-            if (!typeof(ICloudStorageFileSystemProvider).IsAssignableFrom(filesystemType))
-            {
-                throw new InvalidOperationException($"{filesystemType.ToString()} is not a valid filesystem.");
-            }
-
-            config.RegisterTransient(typeof(ICloudStorageFileSystemProvider), filesystemType);
+            config.RegisterTransient(typeof(IFtpFileSystemProvider<FileSystemEntry>), filesystemType);
             ConfigFlags |= DiConfigFlags.FilesystemUsed;
         }
     }

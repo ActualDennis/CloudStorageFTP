@@ -5,7 +5,7 @@ using System.IO;
 
 namespace DenCloud.Core.FileSystem
 {
-    public class CloudStorageUnixFileSystemProvider : FtpUnixFileSystemProvider, ICloudStorageFileSystemProvider
+    public class CloudStorageUnixFileSystemProvider : FtpUnixFileSystemProvider, IFtpFileSystemProvider<FileSystemEntry>
     {
         public CloudStorageUnixFileSystemProvider()
         {

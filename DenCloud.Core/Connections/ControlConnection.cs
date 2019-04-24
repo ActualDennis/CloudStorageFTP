@@ -26,7 +26,7 @@ namespace DenCloud.Core {
         public ControlConnection(
             IAuthenticationProvider authenticationProvider,
             ILogger logger,
-            ICloudStorageFileSystemProvider FileSystemProvider,
+            IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider,
             DataConnection dataConnection,
             FtpCommandFactory commandsFactory,
             DatabaseHelper DbHelper)
@@ -44,13 +44,13 @@ namespace DenCloud.Core {
 
         #region Dependencies
         private IAuthenticationProvider AuthenticationProvider { get; set; }
-        public  ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
+        public IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider { get; set; }
         private ILogger Logger { get; set; }
         private TcpClient ConnectedClient { get; set; }
         private FtpCommandFactory ftpCommandFactory { get; }
         private DatabaseHelper DbHelper { get; }
 
-        private bool IsEncryptionSupported { get; set; }
+        public bool IsEncryptionSupported { get; set; }
 
         #endregion
 

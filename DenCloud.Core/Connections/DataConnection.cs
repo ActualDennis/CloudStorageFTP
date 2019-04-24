@@ -22,7 +22,7 @@ namespace DenCloud.Core.Connections
             this.logger = logger;
         }
 
-        public void Initialize(ICloudStorageFileSystemProvider fileSystemProvider)
+        public void Initialize(IFtpFileSystemProvider<FileSystemEntry> fileSystemProvider)
         {
             FileSystemProvider = fileSystemProvider;
         }
@@ -97,7 +97,7 @@ namespace DenCloud.Core.Connections
 
         private ILogger logger { get; set; }
 
-        private ICloudStorageFileSystemProvider FileSystemProvider { get; set; }
+        private IFtpFileSystemProvider<FileSystemEntry> FileSystemProvider { get; set; }
  
         public int BufferSize
         {
