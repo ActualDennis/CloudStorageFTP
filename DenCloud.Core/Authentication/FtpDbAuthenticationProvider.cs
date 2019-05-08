@@ -1,5 +1,4 @@
 ﻿using DenCloud.Core.Helpers;
-using System.Data.Entity;
 
 namespace DenCloud.Core.Authentication
 {
@@ -12,7 +11,7 @@ namespace DenCloud.Core.Authentication
         public FtpDbAuthenticationProvider(ApplicationDbContext db)
         {
             this.db = db;
-            db.Database.CreateIfNotExists();
+            db.Database.EnsureCreated();
         }
 
         private ApplicationDbContext db { get; set; }

@@ -28,49 +28,16 @@ namespace DenCloud.Core {
 
         private TcpListener ConnectionsListener { get; set; }
 
-        private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
-
         private ILogger logger { get; set; }
 
-        private void Initialize()
-        {
-            try
-            {
-                var settings = XmlConfigHelper.ParseSettings();
+        private Dictionary<Task, CancellationTokenSource> connections { get; set; } = new Dictionary<Task, CancellationTokenSource>();
 
-                //For server to operate as you want , 
-                //you must set desired values in Configuration.xml
-                //If you are using ssl certificate, it should be without password for now.
-                DefaultServerValues.CertificateLocation = settings.CertificateLocation;
-                DefaultServerValues.BaseDirectory = settings.BaseDirectory;
-                DefaultServerValues.FtpControlPort = settings.FtpControlPort;
-                DefaultServerValues.ServerExternalIP = settings.ServerExternalIP;
-                DefaultServerValues.LoggingPath = settings.LoggingPath;
-                DataConnection.MaxPort = settings.MaxPort;
-                DataConnection.MinPort = settings.MinPort;
-                DataConnection.PassiveConnectionRetryFor = settings.PassiveConnectionRetryFor;
-                //if this throws, base dir is basically a set of characters.
-
-               DiContainer.Provider.Resolve<IFtpFileSystemProvider<FileSystemEntry>>();
-
-            }
-            catch(Exception ex)
-            {
-                logger.Log("There was a problem with config file. Check base directory / ip / ports and try again.", RecordKind.Error);
-                throw new ApplicationException($"There was a problem with config file: {ex.Message}");
-            }
-        }
-
-        public void Dispose()
-        {
-            ConnectionsListener.Stop();
-            connections = null;
-        }
         /// <summary>
         /// Call this method if you want to start listening for incoming requests
         /// and allow users to manage their virtual storage
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="ApplicationException">Server didn't start</exception>
         public async Task Start(bool IsEncryptionEnabled)
         {
             try
@@ -78,10 +45,10 @@ namespace DenCloud.Core {
                 DiContainer.ValidateProvider();
                 Initialize();
             }
-            catch (Exception ex)
+            catch (ApplicationException ex)
             {
                 logger.Log($"Server didn't start. Detailed error: {ex.Message}", RecordKind.Error);
-                throw ex;
+                throw;
             }
 
             ConnectionsListener = new TcpListener(IPAddress.Any, DefaultServerValues.FtpControlPort);
@@ -111,6 +78,41 @@ namespace DenCloud.Core {
                 }// when server is disposed, these exceptions are thrown.
                 catch (InvalidOperationException) { return; }
                 catch (SocketException){ return; }
+        }
+
+        private void Initialize()
+        {
+            try
+            {
+                var settings = XmlConfigHelper.ParseSettings();
+
+                //For server to operate as you want , 
+                //you must set desired values in Configuration.xml
+                //If you are using ssl certificate, it should be without password for now.
+                DefaultServerValues.CertificateLocation = settings.CertificateLocation;
+                DefaultServerValues.BaseDirectory = settings.BaseDirectory;
+                DefaultServerValues.FtpControlPort = settings.FtpControlPort;
+                DefaultServerValues.ServerExternalIP = settings.ServerExternalIP;
+                DefaultServerValues.LoggingPath = settings.LoggingPath;
+                DataConnection.MaxPort = settings.MaxPort;
+                DataConnection.MinPort = settings.MinPort;
+                DataConnection.PassiveConnectionRetryFor = settings.PassiveConnectionRetryFor;
+                //if this throws, base dir is basically a set of characters.
+
+                DiContainer.Provider.Resolve<IFtpFileSystemProvider<FileSystemEntry>>();
+
+            }
+            catch (Exception ex)
+            {
+                logger.Log("There was a problem with config file. Check base directory / ip / ports and try again.", RecordKind.Error);
+                throw new ApplicationException($"There was a problem with config file: {ex.Message}", ex);
+            }
+        }
+
+        public void Dispose()
+        {
+            ConnectionsListener.Stop();
+            connections = null;
         }
 
         /// <summary>

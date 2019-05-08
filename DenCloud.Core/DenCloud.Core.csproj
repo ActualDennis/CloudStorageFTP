@@ -68,11 +68,20 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="Google.Apis, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.38.2\lib\net45\Google.Apis.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="Google.Apis.Auth, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.38.2\lib\net45\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Auth.1.38.2\lib\net45\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.Core.1.38.2\lib\net45\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.PlatformServices, Version=1.38.2.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Apis.1.38.2\lib\net45\Google.Apis.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Data.Sqlite, Version=2.2.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Data.Sqlite.Core.2.2.1\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
@@ -136,8 +145,8 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
@@ -349,10 +358,10 @@
     <Compile Include="Di\DiContainer.cs" />
     <Compile Include="Exceptions\UserOutOfSpaceException.cs" />
     <Compile Include="Factories\FtpCommandFactory.cs" />
-    <Compile Include="FileSystem\CloudStorageMsDosFileSystemProvider.cs" />
-    <Compile Include="FileSystem\CloudStorageUnixFileSystemProvider.cs" />
-    <Compile Include="FileSystem\DefaultFileSystemProvider.cs" />
-    <Compile Include="FileSystem\FtpMsDosFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\CloudStorageMsDosFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\CloudStorageUnixFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\DefaultFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\FtpMsDosFileSystemProvider.cs" />
     <Compile Include="Exceptions\WrongPathFormatException.cs" />
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Authentication\FtpUser.cs" />
@@ -365,22 +374,17 @@
     <Compile Include="Data\EReplyCodes.cs" />
     <Compile Include="Data\FtpCommands.cs" />
     <Compile Include="Data\LocalFtpCommands.cs" />
-    <Compile Include="FileSystem\FtpUnixFileSystemProvider.cs" />
-    <Compile Include="FileSystem\EFileSystemEntryType.cs" />
-    <Compile Include="FileSystem\FileSystemEntry.cs" />
-    <Compile Include="FileSystem\IFileSystemProvider.cs" />
-    <Compile Include="FileSystem\IFtpFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\FtpUnixFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\Entries\EFileSystemEntryType.cs" />
+    <Compile Include="FileSystem\Default\Entries\FileSystemEntry.cs" />
+    <Compile Include="FileSystem\Default\IFileSystemProvider.cs" />
+    <Compile Include="FileSystem\Default\IFtpFileSystemProvider.cs" />
     <Compile Include="FtpServer.cs" />
     <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="Helpers\XmlConfigParser.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\AutomaticFileLogger.cs" />
-    <Compile Include="Migrations\201904141522304_Initial.cs" />
-    <Compile Include="Migrations\201904141522304_Initial.Designer.cs">
-      <DependentUpon>201904141522304_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Misc\ActionsTracker.cs" />
     <Compile Include="Misc\ConnectionSecurityChangedEventArgs.cs" />
     <Compile Include="Misc\UserAuthenticatedEventArgs.cs" />
@@ -406,9 +410,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201904141522304_Initial.resx">
-      <DependentUpon>201904141522304_Initial.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\..\DenInject\DenInject.Core\DenInject.Core.csproj">
+      <Project>{9b5e6fad-e4bb-461a-a835-34b6c0ba1b96}</Project>
+      <Name>DenInject.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
